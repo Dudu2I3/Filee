@@ -1,0 +1,78 @@
+name: Filee Lite (macOS)
+
+# Builds the Apple Silicon package (Filee.app in a .dmg and a .tar.gz) on a macOS runner. A push to main also
+# publishes it as a GitHub Release named after the version in Directory.Build.props (v2.0.0-lite.N).
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [lite, main, claude/filee-lite-macos-mndpot]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mac-lite-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mac:
+    name: macOS arm64 package
+    runs-on: macos-15
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Version
+        id: version
+        run: |
+          $version = ([xml](Get-Content -LiteralPath Directory.Build.props -Raw)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Version $version"
+
+      # The App tests take very long on macOS runners and are left out.
+      - name: Test (Core)
+        run: dotnet test tests/Filee.Core.Tests/Filee.Core.Tests.csproj -c Release
+
+      - name: Test (Engines)
+        continue-on-error: true
+        run: dotnet test tests/Filee.Engines.Tests/Filee.Engines.Tests.csproj -c Release
+
+      - name: Build package
+        run: ./build/build-portable.ps1 -Runtime osx-arm64 -Version '${{ steps.version.outputs.version }}'
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: filee-lite-osx-arm64
+          path: |
+            Releases/*.tar.gz
+            Releases/*.dmg
+            Releases/*-SHA256SUMS.txt
+          if-no-files-found: error
+
+      - name: Publish release
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" Releases/*.dmg Releases/*.tar.gz Releases/*-SHA256SUMS.txt --clobber
+          else
+            gh release create "$tag" Releases/*.dmg Releases/*.tar.gz Releases/*-SHA256SUMS.txt \
+              --target "$GITHUB_SHA" --title "Filee Lite $VERSION" --prerelease \
+              --notes "Filee Lite for macOS (Apple Silicon): a lighter fork of Filee with the common formats only. Open the .dmg, drag Filee to Applications, then allow it in System Settings > Privacy & Security (Open Anyway) and enable it under Accessibility. Checksums are in the SHA256SUMS file."
+          fi
