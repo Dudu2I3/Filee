@@ -9,6 +9,19 @@ Hold <kbd>Option</kbd>, drag files and drop them on a format in the donut that o
 > [upstream Filee](https://github.com/KnifeLemon/Filee). Nothing here is sent to upstream, and Filee Lite never updates
 > itself from it.
 
+## The donut
+
+Liquid Glass look (rendered headless, so the system blur is not visible here):
+
+<p>
+  <img src="docs/media/lite/donut-images.png" width="30%" alt="Images donut">
+  <img src="docs/media/lite/donut-pdf.png" width="30%" alt="PDF donut">
+  <img src="docs/media/lite/donut-video.png" width="30%" alt="Video donut">
+</p>
+
+The classic slices stay available in Settings > Theme. On macOS an experimental switch there puts the system blur
+under the ring; without it the glass is dense enough to read on any background.
+
 ## What is in it
 
 | Group | Formats | Engine |

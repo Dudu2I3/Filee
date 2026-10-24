@@ -26,19 +26,9 @@ Each component remains under its own license.
 | ExcelDataReader | MIT | https://github.com/ExcelDataReader/ExcelDataReader |
 | PdfPig (PDF text, layout and pictures) | Apache-2.0 | https://github.com/UglyToad/PdfPig |
 | MimeKitLite (e-mail / MIME parsing) | MIT | https://github.com/jstedfast/MimeKit |
-| MsgReader (Outlook .msg reading) | MIT, Copyright (c) Kees van Spelde | https://github.com/Sicos1977/MSGReader |
-| OpenMcdf (OLE compound files, used by MsgReader) | MPL-2.0 (source: the project page) | https://github.com/openmcdf/openmcdf |
-| RtfPipe (RTF → HTML, used by MsgReader) | MIT, Copyright (c) 2018 Eric Domke | https://github.com/erdomke/RtfPipe |
-| UTF.Unknown (charset detection, used by MsgReader) | MPL-1.1 (source: the project page) | https://github.com/CharsetDetector/UTF-unknown |
-| Microsoft.Maui.Graphics, Microsoft.IO.RecyclableMemoryStream (used by MsgReader) | MIT | https://github.com/dotnet/maui, https://github.com/microsoft/Microsoft.IO.RecyclableMemoryStream |
-| YamlDotNet (YAML reading and writing) | MIT, Copyright (c) Antoine Aubry and contributors | https://github.com/aaubry/YamlDotNet |
-| Tomlyn (TOML reading) | BSD-2-Clause, Copyright (c) Alexandre Mutel | https://github.com/xoofx/Tomlyn |
-| ACadSharp (DWG/DXF reading and writing; includes CSMath and CSUtilities) | MIT, Copyright (c) Albert Domenech | https://github.com/DomCR/ACadSharp |
-| SharpGLTF.Core (glTF / GLB reading and writing) | MIT, Copyright (c) Vicente Penades | https://github.com/vpenades/SharpGLTF |
 | AngleSharp | MIT | https://github.com/AngleSharp/AngleSharp |
 | pypandoc-hwpx (Pandoc AST mapping and package layout in `Filee.Engines/Hwp/Hwpx`, incl. the `blank.hwpx` reference document) | MIT, Copyright (c) 2024 pypandoc-hwpx Contributors | https://github.com/msjang/pypandoc-hwpx |
 | Microsoft.Extensions.* | MIT | https://github.com/dotnet/runtime |
-| cu2qu (fontTools): the cubic-to-quadratic approach followed by `Filee.Engines/Fonts/Cff/CubicToQuadratic.cs` | Apache-2.0, Copyright 2016 Google Inc. | https://github.com/fonttools/fonttools |
 
 libuiohook (the native input hook inside SharpHook) is the fork https://github.com/TolikPylypchuk/libuiohook, licensed
 under the GNU LGPL-3.0 (`COPYING.LESSER.md` in its repository). Filee loads SharpHook's unmodified build of it
@@ -72,15 +62,7 @@ Downloaded from their official release pages when the user chooses to install th
 | Component | License | Project |
 |---|---|---|
 | LibreOffice | MPL-2.0 | https://www.libreoffice.org |
-| H2Orestart (HWP/HWPX import for LibreOffice) | GPL-3.0 | https://github.com/ebandal/H2Orestart |
-| Eclipse Temurin JRE (for H2Orestart) | GPL-2.0 with Classpath Exception | https://adoptium.net |
-| Pandoc | GPL-2.0-or-later | https://github.com/jgm/pandoc |
-| Ghostscript (conda-forge build) | AGPL-3.0 | https://www.ghostscript.com, https://github.com/conda-forge/ghostscript-feedstock |
-| Microsoft Visual C++ Redistributable (for Ghostscript, conda-forge `vc14_runtime`) | Microsoft Visual C++ Redistributable license | https://github.com/conda-forge/vc-feedstock |
 | FFmpeg 9.0.2 (gyan.dev "full_build-shared" Windows build; ffmpeg.exe, ffprobe.exe and their libraries, incl. x264, x265, libvpx, LAME, Opus, Vorbis, Theora, OpenCORE AMR) | GPL-3.0-or-later (the build is configured with `--enable-gpl --enable-version3`); FFmpeg itself LGPL-2.1-or-later | https://ffmpeg.org, build: https://www.gyan.dev/ffmpeg/builds/ (source: https://github.com/GyanD/codexffmpeg) |
-| calibre (ebook-convert) | GPL-3.0 | https://calibre-ebook.com |
-| Tesseract OCR 5.4 (UB Mannheim Windows build, with Leptonica and the MinGW libraries it ships; their notices are in its `doc` folder) | Apache-2.0 (Tesseract); Leptonica BSD-2-Clause; others as listed in the build | https://github.com/tesseract-ocr/tesseract, build: https://github.com/UB-Mannheim/tesseract |
-| Tesseract language data (tessdata_fast 4.1.0), downloaded per language when used | Apache-2.0 | https://github.com/tesseract-ocr/tessdata_fast |
 
 These programs run as separate processes. Their source code is available from the linked projects.
 
@@ -101,11 +83,19 @@ Windows headers, without a C runtime. Pieces of these projects that can end up i
 the x86 branch filter of the LZMA SDK (public domain, Igor Pavlov, https://www.7-zip.org/sdk.html), and the published
 app as its payload. Filee 1.x's installer was built with Inno Setup, which is no longer used.
 
+## Filee Lite additions
+
+Filee Lite (a fork of Filee by Myeonggu Kim, KnifeLemon, MIT) removes the components listed above that its formats don't
+need. The macOS package bundles a static FFmpeg 6.0 build for Apple Silicon (ffmpeg and ffprobe, from
+https://github.com/eugeneware/ffmpeg-static release b6.0, SHA-256 pinned in `src/Filee.Engines/Infrastructure/engines.json`).
+It is configured with `--enable-gpl --enable-nonfree` (x264, x265, libvpx, libwebp, libmp3lame, libopus, ...): the
+package is for personal use and must not be redistributed.
+
 ## Fonts and icons
 
 | Component | License | Project |
 |---|---|---|
-| Noto Sans, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans SC, Noto Sans Devanagari, Noto Sans Thai | SIL Open Font License 1.1 | https://github.com/notofonts |
+| Noto Sans (Latin, Cyrillic) | SIL Open Font License 1.1 | https://github.com/notofonts |
 | Test fonts in `tests/Filee.Engines.Tests/Fonts` (subsets of Noto Sans and Noto Sans KR; not shipped) | SIL Open Font License 1.1 | see `OFL.txt` in that folder |
 | Material Design Icons (Pictogrammers) | Apache-2.0 | https://pictogrammers.com |
 | Simple Icons 16.35.0 (GitHub Sponsors, Patreon, Ko-fi and PayPal logos in the Sponsor window) | CC0-1.0 | https://simpleicons.org |

@@ -9,6 +9,7 @@
 
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using Filee.Core.Settings;
 
 namespace Filee.App.Controls;
@@ -61,10 +62,10 @@ public sealed partial class DonutMenu
     // ───────────────────────── Colours (design values) ─────────────────────────
 
     internal static readonly IBrush GlassWhite = Brushes.White;
-    private static readonly IBrush SecondaryNative = new SolidColorBrush(GlassSecondaryColor(true));
-    private static readonly IBrush SecondaryDense = new SolidColorBrush(GlassSecondaryColor(false));
+    private static readonly IBrush SecondaryNative = new ImmutableSolidColorBrush(GlassSecondaryColor(true));
+    private static readonly IBrush SecondaryDense = new ImmutableSolidColorBrush(GlassSecondaryColor(false));
     internal static IBrush GlassSecondary => DonutAppearance.NativeBlur ? SecondaryNative : SecondaryDense;
-    internal static readonly IBrush GlassDisabled = new SolidColorBrush(Color.FromArgb(77, 235, 235, 245));      // 30 %
+    internal static readonly IBrush GlassDisabled = new ImmutableSolidColorBrush(Color.FromArgb(77, 235, 235, 245));      // 30 %
 
     /// <summary>
     /// The ring's tint over the blurred background: 28 % with a native blur. Without one, 90 % of a darker grey than the
@@ -86,20 +87,18 @@ public sealed partial class DonutMenu
 
     private static IBrush GlassCaptionBrush(bool hot, bool enabled) => !enabled ? GlassDisabled : hot ? GlassWhite : GlassSecondary;
 
-    private static IBrush WhiteAlpha(double alpha) => new SolidColorBrush(Color.FromArgb((byte)Math.Round(255 * alpha), 255, 255, 255));
-
-    private static readonly IBrush TintDense = new SolidColorBrush(GlassTintColor(false));
-    private static readonly IBrush TintNative = new SolidColorBrush(GlassTintColor(true));
-    private static readonly IBrush HubDense = new SolidColorBrush(GlassHubTintColor(false));
-    private static readonly IBrush HubNative = new SolidColorBrush(GlassHubTintColor(true));
-    private static readonly Pen EdgePen = new(WhiteAlpha(0.14), 1);
+    private static readonly IBrush TintDense = new ImmutableSolidColorBrush(GlassTintColor(false));
+    private static readonly IBrush TintNative = new ImmutableSolidColorBrush(GlassTintColor(true));
+    private static readonly IBrush HubDense = new ImmutableSolidColorBrush(GlassHubTintColor(false));
+    private static readonly IBrush HubNative = new ImmutableSolidColorBrush(GlassHubTintColor(true));
+    private static readonly IPen EdgePen = new ImmutablePen(new ImmutableSolidColorBrush(Color.FromArgb(36, 255, 255, 255)), 1);
 
     private IBrush GlassTint => DonutAppearance.NativeBlur ? TintNative : TintDense;
 
     /// <summary>The fill of a slice-shaped plate: the glass tint in the glass look, the theme's surface otherwise.</summary>
     private IBrush? SliceFillBrush(double classicOpacity) => UsesGlass ? GlassTint : WithOpacity(SliceBrush, classicOpacity);
 
-    private Pen? SliceEdgePen() => UsesGlass ? EdgePen : BorderPen();
+    private IPen? SliceEdgePen() => UsesGlass ? EdgePen : BorderPen();
 
     private IBrush? HubFillBrush() => UsesGlass ? (DonutAppearance.NativeBlur ? HubNative : HubDense) : CenterBrush;
 

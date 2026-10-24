@@ -560,7 +560,7 @@ public class DonutFlipTests
             page.RemoveAt(page.SliceCount - 1);
             RenderTests.Pump();
             var chip = window.GetVisualDescendants().OfType<Avalonia.Controls.Border>()
-                .Single(b => b.Classes.Contains("chip") && b.DataContext is PaletteChip { PresetId: "to-psd" });
+                .Single(b => b.Classes.Contains("chip") && b.DataContext is PaletteChip { PresetId: "to-svg" });
             chip.BringIntoView();
             RenderTests.Pump();
             var from = chip.TranslatePoint(new Point(chip.Bounds.Width / 2, chip.Bounds.Height / 2), window)!.Value;
@@ -569,7 +569,7 @@ public class DonutFlipTests
             window.MouseMove(to);
             window.MouseUp(to, Avalonia.Input.MouseButton.Left);
             RenderTests.Pump();
-            Assert.Contains("to-psd", Images.BackPresetIds!);
+            Assert.Contains("to-svg", Images.BackPresetIds!);
             Assert.Equal(beforeFront, Images.PresetIds);
             Assert.Equal(beforeBack.Count, Images.BackPresetIds!.Count);
             Motion.Configure(true, () => false);
@@ -1169,7 +1169,7 @@ public class DonutFlipTests
         }
     }, language);
 
-    /// <summary>The PDF back face exposes Edit as a slice, then fans its six tools out around that slice.</summary>
+    /// <summary>The PDF front face exposes Edit as a slice, then fans its six tools out around that slice.</summary>
     [AvaloniaFact]
     public void The_pdf_edit_group_renders_as_a_subring() => With(animations: false, back: null, () =>
     {
@@ -1180,18 +1180,17 @@ public class DonutFlipTests
             Motion.Configure(true, () => false);
             var (vm, window, donut) = OpenClickMode(@"C:\docs\report.pdf");
 
-            Assert.True(donut.HandleKey(Key.Tab));
-            Assert.True(vm.IsBackFace);
-            Assert.Equal("pdf-edit", vm.Items[0].Id);
-            Assert.Equal(6, vm.Items[0].Children!.Count);
+            var edit = vm.Items.ToList().FindIndex(i => i.Id == "pdf-edit");
+            Assert.True(edit >= 0);
+            Assert.Equal(6, vm.Items[edit].Children!.Count);
 
-            donut.SetExternalHit(new DonutHit(DonutHitKind.Segment, 0));
+            donut.SetExternalHit(new DonutHit(DonutHitKind.Segment, edit));
             donut.ExpandPendingGroup();
-            donut.SetExternalHit(new DonutHit(DonutHitKind.SubSegment, 0, 3));
+            donut.SetExternalHit(new DonutHit(DonutHitKind.SubSegment, edit, 3));
             RenderTests.Pump();
             RenderTests.Save(window, "donut-pdf-edit-en.png");
 
-            Assert.Equal(DonutHitKind.SubSegment, donut.HitTest(donut.SubSliceCenter(0, 3)).Kind);
+            Assert.Equal(DonutHitKind.SubSegment, donut.HitTest(donut.SubSliceCenter(edit, 3)).Kind);
             window.Close();
         }
         finally
@@ -1247,9 +1246,9 @@ public class DonutFlipTests
             var back = ImageBack;
             // The built-in back face is full (settings schema 37): a slice goes before another comes in.
             page.RemoveAt(page.SliceCount - 1);
-            Assert.True(page.Insert("to-psd", 0));
+            Assert.True(page.Insert("to-svg", 0));
             page.Move(0, 2);
-            List<string> edited = [.. back[..2], "to-psd", .. back[2..^1]];
+            List<string> edited = [.. back[..2], "to-svg", .. back[2..^1]];
             Assert.Equal(edited, Images.BackPresetIds);
             Assert.Equal(front, Images.PresetIds); // the front as it was
             Assert.Equal(edited, page.DonutItems.Select(i => i.Id));

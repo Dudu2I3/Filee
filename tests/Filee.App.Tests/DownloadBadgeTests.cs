@@ -63,7 +63,7 @@ public class DownloadBadgeTests
         TestServices.EnsureInitialized("ru");
         var loc = AppHost.Get<ILocalizer>();
         InCulture("en-US", () =>
-            Assert.Equal("640 KB/s · 2.0 / 3.1 MB · 3개 중 2번째", DownloadBadge.Format(loc, 640_000, new JobTransfer(2 * MB, 3_100_000, 1, 3, 9 * MB))));
+            Assert.Equal("640 KB/с · 2.0 / 3.1 MB · файл 2 из 3", DownloadBadge.Format(loc, 640_000, new JobTransfer(2 * MB, 3_100_000, 1, 3, 9 * MB))));
         TestServices.EnsureInitialized("en");
     }
 
