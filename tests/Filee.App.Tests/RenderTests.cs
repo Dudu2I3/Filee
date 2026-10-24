@@ -808,7 +808,6 @@ public class RenderTests
     }
 
     [AvaloniaTheory]
-    [InlineData("ru", "JPG 3개")]
     [InlineData("ru", "3 × JPG")]
     public void Donut_toolbar_renders_for_images(string language, string title)
     {
@@ -1358,7 +1357,7 @@ public class RenderTests
         var vm = new PresetEditorViewModel(preset, loc);
         Assert.True(vm.ShowAnimationSpeed);
         Assert.Equal(1, vm.AnimationSpeed.Value);
-        Assert.Equal(["0.25×", "0.5×", "0.75×", "1× (원본)", "1.5×", "2×", "4×"], vm.AnimationSpeeds.Select(s => s.Label));
+        Assert.Equal(["0.25×", "0.5×", "0.75×", "1× (исходная)", "1.5×", "2×", "4×"], vm.AnimationSpeeds.Select(s => s.Label));
         vm.AnimationSpeed = vm.AnimationSpeeds.Single(s => s.Value == 0.5);
         var window = new PresetEditorWindow { DataContext = vm, Height = 900 };
         window.Show();
@@ -1366,7 +1365,7 @@ public class RenderTests
         Save(window, "preset-animation-speed-ko.png");
         window.Close();
 
-        foreach (var target in new[] { "webp", "apng", "mng", Filee.Core.Presets.BuiltInData.SameAsSource })
+        foreach (var target in new[] { "webp", Filee.Core.Presets.BuiltInData.SameAsSource })
         {
             vm.Target = vm.Targets.Single(t => t.Value == target);
             Assert.True(vm.ShowAnimationSpeed, target);
@@ -1682,8 +1681,6 @@ public class RenderTests
             Pump();
             Save(window, $"preset-wav-{suffix}.png");
             window.Close();
-            archive.Target = archive.Targets.Single(t => t.Value == "amr");
-            Assert.False(archive.ShowAudioChannels || archive.ShowWav);
             archive.Target = archive.Targets.Single(t => t.Value == Filee.Core.Formats.FormatRegistry.Folder);
             Assert.True(archive.ShowArchive && archive.ShowExtractNote && !archive.ShowArchiveOptions);
         }
@@ -1716,8 +1713,6 @@ public class RenderTests
 
         vm.TraceMode = vm.TraceModes.Single(m => m.Value == Filee.Core.Presets.TracingMode.BlackAndWhite);
         Assert.False(vm.ShowTraceColors);
-        vm.Target = vm.Targets.Single(t => t.Value == "dxf");
-        Assert.True(vm.ShowTrace);
         vm.Target = vm.Targets.Single(t => t.Value == "png");
         Assert.False(vm.ShowTrace);
     }
@@ -1767,50 +1762,6 @@ public class RenderTests
         Assert.False(vm.ShowLeaveOutPictures);
         Assert.True(vm.Apply());
         Assert.False(preset.Document.LeaveOutPictures);
-    }
-
-    [AvaloniaFact]
-    public void Preset_editor_offers_the_autocad_version_for_dwg_and_dxf_only()
-    {
-        TestServices.EnsureInitialized("en");
-        var preset = new Filee.Core.Presets.Preset { TargetFormat = "dwg", Name = "Old DWG" };
-        var vm = new PresetEditorViewModel(preset, AppHost.Get<ILocalizer>());
-        Assert.True(vm.ShowCad);
-        Assert.Equal(["AutoCAD 2018", "AutoCAD 2013", "AutoCAD 2010", "AutoCAD 2007", "AutoCAD 2004", "AutoCAD 2000", "Same as the source"],
-            vm.CadVersions.Select(v => v.Label));
-
-        vm.CadVersion = vm.CadVersions.Single(v => v.Value == Filee.Core.Presets.CadVersion.AutoCad2004);
-        Assert.True(vm.Apply());
-        Assert.Equal(Filee.Core.Presets.CadVersion.AutoCad2004, preset.Cad.Version);
-        Assert.Equal(Filee.Core.Presets.CadVersion.AutoCad2004, new PresetEditorViewModel(preset, AppHost.Get<ILocalizer>()).CadVersion.Value);
-
-        // Not for other targets: the choice isn't kept behind them.
-        vm.Target = vm.Targets.Single(t => t.Value == "png");
-        Assert.False(vm.ShowCad);
-        Assert.True(vm.Apply());
-        Assert.Equal(Filee.Core.Presets.CadVersion.AutoCad2018, preset.Cad.Version);
-    }
-
-    [AvaloniaFact]
-    public void Preset_editor_offers_save_as_zip_for_geospatial_targets_only()
-    {
-        TestServices.EnsureInitialized("en");
-        var preset = new Filee.Core.Presets.Preset { TargetFormat = "shp", Name = "Shapefile" };
-        var vm = new PresetEditorViewModel(preset, AppHost.Get<ILocalizer>());
-        Assert.True(vm.ShowZipResult);
-        Assert.Equal("Geospatial", vm.Target.Detail);
-
-        vm.ZipResult = true;
-        Assert.True(vm.Apply());
-        Assert.True(preset.Output.ZipResult);
-
-        vm.Target = vm.Targets.Single(t => t.Value == "kml");
-        Assert.True(vm.ShowZipResult);
-        vm.Target = vm.Targets.Single(t => t.Value == "png");
-        Assert.False(vm.ShowZipResult);
-        // The box ticked for Shapefile, hidden for PNG, doesn't zip the PNG.
-        Assert.True(vm.Apply());
-        Assert.False(preset.Output.ZipResult);
     }
 
     [AvaloniaFact]
@@ -1886,8 +1837,6 @@ public class RenderTests
         Assert.False(vm.ShowHardwareEncoding);
         vm.Target = vm.Targets.Single(t => t.Value == "mp3");
         Assert.False(vm.ShowHardwareEncoding);
-        vm.Target = vm.Targets.Single(t => t.Value == "ts");
-        Assert.True(vm.ShowHardwareEncoding);
         vm.Target = vm.Targets.Single(t => t.Value == "mov");
         Assert.True(vm.Apply());
         Assert.True(preset.Media.HardwareEncoding);
@@ -1932,30 +1881,6 @@ public class RenderTests
         Assert.True(vm.Apply());
         Assert.Equal((Filee.Core.Presets.VideoCodec.Default, Filee.Core.Presets.AudioCodec.Alac), (preset.Media.VideoCodec, preset.Media.AudioCodec));
 
-        // New lossless targets and W64 (WAV options); subtitles have no media or PDF options.
-        vm.Target = vm.Targets.Single(t => t.Value == "wv");
-        Assert.False(vm.ShowAudioBitrate || vm.ShowAudioCodec);
-        vm.Target = vm.Targets.Single(t => t.Value == "w64");
-        Assert.True(vm.ShowWav);
-        vm.Target = vm.Targets.Single(t => t.Value == "smi");
-        Assert.False(vm.ShowMedia || vm.ShowPdf || vm.ShowImage);
-        Assert.Equal("Subtitle", vm.Target.Detail);
-    }
-
-    /// <summary>The geospatial donut in the toolbar editor: GeoJSON, Shapefile, KML, CSV, GPX and KMZ for geo files.</summary>
-    [AvaloniaTheory]
-    [InlineData("en")]
-    [InlineData("ru")]
-    public void Toolbar_geospatial_donut_renders(string language)
-    {
-        WithProfiles(language, false, 1240, _ => { }, (window, vm) =>
-        {
-            vm.SelectedProfile = vm.Profiles.Single(p => p.Profile.Id == "geo");
-            Pump();
-            Assert.Equal(["to-geojson", "to-shp", "to-kml", "to-csv", "to-gpx", "to-kmz"], vm.SelectedProfile.Profile.PresetIds);
-            Assert.Contains("shp", vm.ExtensionTags!.Tags.Select(t => t.Text.TrimStart('.')));
-            Save(window, $"toolbar-geospatial-{language}.png");
-        });
     }
 
     /// <summary>

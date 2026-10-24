@@ -92,6 +92,7 @@ public class DonutLabelPlacementTests
     public void A_word_wider_than_its_slice_gets_smaller_instead_of_breaking()
     {
         TestServices.EnsureInitialized("en");
+        DonutAppearance.Set(Filee.Core.Settings.DonutStyle.Classic, nativeBlur: false); // 13 px names; the glass look draws 14
         var donut = new DonutMenu();
         var typeface = new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold);
 

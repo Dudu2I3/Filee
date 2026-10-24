@@ -5,7 +5,6 @@ using System.IO.Compression;
 using System.Text;
 using Filee.Core.Conversion;
 using Filee.Core.Presets;
-using Filee.Engines.Icns;
 using Filee.Engines.Magick;
 using Filee.Engines.Vector;
 using ImageMagick;
@@ -250,16 +249,6 @@ public class GraphicsTests(EngineFixture fx) : IClassFixture<EngineFixture>
         Assert.Null(SvgXmlRepair.FixAmpersands(Encoding.Latin1.GetBytes("<t encoding=\"latin1\">café & co</t>")));
 
     // ───────────────────────── ICNS ─────────────────────────
-
-    [Fact]
-    public void Icns_rle_decodes_literal_and_repeat_runs()
-    {
-        byte[] data = [.. Enumerable.Range(0, 300).Select(i => (byte)(i < 100 ? i : 7))];
-
-        var decoded = IcnsFile.UnpackBits(GraphicsBuilders.PackBits(data), data.Length);
-
-        Assert.Equal(data, decoded);
-    }
 
     // ───────────────────────── Illustrator ─────────────────────────
 

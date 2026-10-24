@@ -3,7 +3,6 @@
 // every Markdown editor shows and which keeps working when both are moved together.
 
 using Filee.Core.Conversion;
-using Filee.Engines.Ebooks;
 
 namespace Filee.Engines.Text;
 
@@ -39,7 +38,7 @@ internal sealed class MarkdownPictures
     {
         if (_links.TryGetValue(path, out var known))
             return known;
-        if (EbookFiles.CommonImage(path, _convertFolder, gifAndSvg: true) is not ({ } file, _) || Folder() is not { } folder)
+        if (PictureFiles.CommonImage(path, _convertFolder, gifAndSvg: true) is not ({ } file, _) || Folder() is not { } folder)
             return null;
         var name = $"img{_links.Count + 1:0000}{Path.GetExtension(file).ToLowerInvariant()}";
         File.Copy(file, Path.Combine(folder, name), overwrite: true);

@@ -48,6 +48,8 @@ internal static class TestServices
         var store = AppHost.Get<UserDataStore>();
         store.Settings.Language = language;
         AppHost.Get<LocalizationService>().SetLanguage(language);
+        // Tests that sample donut pixels were written for the classic slices; the glass look has its own tests.
+        store.Settings.Theme.DonutStyle = Filee.Core.Settings.DonutStyle.Classic;
         AppHost.Get<ThemeService>().Apply(store.Settings.Theme, language);
     }
 

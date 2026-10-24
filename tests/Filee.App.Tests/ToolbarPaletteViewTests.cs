@@ -176,7 +176,7 @@ public class ToolbarPaletteViewTests
         var profiles = view.Page.GetVisualDescendants().OfType<ListBox>().Single(l => l.Classes.Contains("soft"));
         profiles.SelectedItem = vm.Profiles[^1];
         RenderTests.Pump();
-        Assert.Equal(Enum.GetValues<PaletteTab>(), view.TabIds);
+        Assert.Equal([PaletteTab.All, PaletteTab.Image, PaletteTab.Document, PaletteTab.Media, PaletteTab.Edit, PaletteTab.Archive], view.TabIds);
         Assert.True(view.Tabs.IsEffectivelyVisible);
         Assert.Same(view.Tabs.Items[0], view.Tabs.SelectedItem);
         Assert.Equal(PaletteTab.All, vm.SelectedTab!.Id);
@@ -301,10 +301,11 @@ public class ToolbarPaletteViewTests
         using var vm = f.Page(Profile("tabs-all"));
         using var view = new View(vm);
         var groups = f.Store.Presets.Where(p => p.IsGroup).Select(p => p.Id).ToList();
-        Assert.Equal(Enum.GetValues<PaletteTab>(), view.TabIds);
+        PaletteTab[] shownTabs = [PaletteTab.All, PaletteTab.Image, PaletteTab.Document, PaletteTab.Media, PaletteTab.Edit, PaletteTab.Archive];
+        Assert.Equal(shownTabs, view.TabIds);
 
         var shown = new Dictionary<PaletteTab, List<string>>();
-        foreach (var tab in Enum.GetValues<PaletteTab>())
+        foreach (var tab in shownTabs)
         {
             view.ClickTab(tab);
             var chips = view.Chips;

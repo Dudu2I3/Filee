@@ -13,7 +13,6 @@ using System.IO.Compression;
 using System.Xml;
 using Filee.Core.Conversion;
 using Filee.Core.Formats;
-using Filee.Engines.Ebooks;
 using Filee.Engines.Hwp.Hwpx;
 using Filee.Engines.Infrastructure;
 using Filee.Engines.Office;
@@ -122,9 +121,7 @@ public sealed class RhwpConverter : IConverter, ITextShapingCheck
         }
         catch (TimeoutException ex)
         {
-            // E-books reach rhwp through the HWPX writer; calibre makes their PDFs much faster when it is ranked above it.
-            throw new ConversionRefusedException(
-                CalibreConverter.Locate() is null ? "error.rhwp_timeout" : "error.rhwp_timeout_calibre", ex.Message);
+            throw new ConversionRefusedException("error.rhwp_timeout", ex.Message);
         }
 
         return Finish(step, temp, progress);

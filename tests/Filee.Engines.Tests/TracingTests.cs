@@ -4,10 +4,6 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml.Linq;
-using ACadSharp;
-using ACadSharp.Entities;
-using ACadSharp.IO;
-using ACadSharp.Types.Units;
 using Filee.Core.Conversion;
 using Filee.Core.Formats;
 using Filee.Core.Presets;

@@ -1,7 +1,6 @@
 // A copy of an optional engine the user already has (Settings → Engines → "Use my copy…") is found from the program
 // they picked, wins over Filee's download, and is refused when its folder lacks a program the engine needs.
 
-using Filee.Engines.Ebooks;
 using Filee.Engines.Infrastructure;
 using Filee.Engines.Media;
 using Filee.Engines.Office;
@@ -32,20 +31,13 @@ public sealed class OwnCopyTests : IDisposable
     {
         var ffmpeg = Program(Path.Combine("ffmpeg", "bin", EngineEnvironment.ProgramName("ffmpeg.exe")));
         var ffprobe = Program(Path.Combine("ffmpeg", "bin", EngineEnvironment.ProgramName("ffprobe.exe")));
-        var pandoc = Program(Path.Combine("pandoc", EngineEnvironment.ProgramName("pandoc.exe")));
-        var calibre = Program(Path.Combine("Calibre2", EngineEnvironment.ProgramName("calibre.exe")));
-        var convert = Program(Path.Combine("Calibre2", EngineEnvironment.ProgramName("ebook-convert.exe")));
 
         EngineEnvironment.OwnCopies = new Dictionary<string, string>
         {
             ["ffmpeg"] = Path.Combine(_folder, "ffmpeg"), // the folder of an FFmpeg build: its bin\ is found
-            ["pandoc"] = pandoc,
-            ["calibre"] = calibre, // calibre.exe picked: ebook-convert.exe next to it is used
         };
 
         Assert.Equal((ffmpeg, ffprobe), FfmpegConverter.Locate());
-        Assert.Equal(pandoc, PandocConverter.Locate());
-        Assert.Equal(convert, CalibreConverter.Locate());
     }
 
     [Fact]

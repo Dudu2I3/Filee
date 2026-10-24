@@ -25,25 +25,14 @@ internal static class ImageReader
     {
         if (formatId == "apng")
             return Apng.Read(path);
-        if (formatId == "dcm" && Dicom.TryRead(path) is { } scan)
-            return scan;
         if (formatId == "livp")
             return ReadLivePhoto(path, preset);
-        if (formatId == "fits")
-            return [FitsRendering.ToMagick(Fits.Read(path), preset.Image.FitsDebayer)];
 
         var images = new MagickImageCollection();
         var settings = Settings(formatId, preset);
         try
         {
             images.Read(path, settings);
-        }
-        catch (MagickException ex) when (formatId == "dcm")
-        {
-            images.Dispose();
-            throw new InvalidOperationException(
-                "This DICOM image is compressed in a way Filee can't read (more than 8 bits per sample, or an unusual " +
-                "compression). Export it uncompressed from the viewing software and try again. (" + ex.Message + ")", ex);
         }
         catch (MagickException ex) when (formatId == "xcf")
         {
