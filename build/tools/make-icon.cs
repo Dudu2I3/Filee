@@ -1,4 +1,4 @@
-// Generates src/Filee.App/Assets/Icons/filee.ico and filee.png (the donut logo).
+// Upstream generator of the original flat donut logo. The Filee Lite icon is drawn by build/tools/make-app-icon.py.
 // Run from the repository root:  dotnet run build/tools/make-icon.cs
 #:package Magick.NET-Q8-AnyCPU
 
