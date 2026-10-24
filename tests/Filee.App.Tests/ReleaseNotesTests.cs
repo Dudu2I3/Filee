@@ -16,10 +16,9 @@ public class ReleaseNotesTests
 
         <!-- update
         level: required
-        ko: 엑셀 페이지 나누기가 PDF에 반영돼요
-        ko: 한글 수식이 제대로 나와요
+        ru: Разрывы страниц Excel попадают в PDF
+        ru: Формулы Word отображаются верно
         en: Excel page breaks carry over to PDF
-        zh: Excel 分页符会保留到 PDF 中
         -->
 
         ### Fixed
@@ -31,9 +30,8 @@ public class ReleaseNotesTests
         var note = ReleaseNotes.Parse("1.10.3", Body);
 
         Assert.Equal(UpdateLevel.Required, note.Level);
-        Assert.Equal(["엑셀 페이지 나누기가 PDF에 반영돼요", "한글 수식이 제대로 나와요"], note.In("ko"));
-        Assert.Equal(["Excel 分页符会保留到 PDF 中"], note.In("zh-CN"));
-        Assert.Equal(["Excel page breaks carry over to PDF"], note.In("ja")); // no Japanese: English
+        Assert.Equal(["Разрывы страниц Excel попадают в PDF", "Формулы Word отображаются верно"], note.In("ru"));
+        Assert.Equal(["Excel page breaks carry over to PDF"], note.In("ja")); // not a Filee language: English
     }
 
     [Fact]
@@ -41,16 +39,14 @@ public class ReleaseNotesTests
     {
         var note = ReleaseNotes.Parse("1.12.0", """
             <!-- update
-            en: Polish translation
-            pl: Język polski
-            pt-BR: Português do Brasil
+            en: Russian translation
+            ru: Русский перевод
             xx: from a newer Filee
             -->
             """);
 
-        Assert.Equal(["Język polski"], note.In("pl"));
-        Assert.Equal(["Português do Brasil"], note.In("pt-BR"));
-        Assert.Equal(["Polish translation"], note.In("xx")); // not a Filee language: English
+        Assert.Equal(["Русский перевод"], note.In("ru"));
+        Assert.Equal(["Russian translation"], note.In("xx")); // not a Filee language: English
     }
 
     [Fact]
@@ -59,7 +55,7 @@ public class ReleaseNotesTests
         var note = ReleaseNotes.Parse("1.9.0", "### New\n\n- Something");
 
         Assert.Equal(UpdateLevel.Recommended, note.Level);
-        Assert.Empty(note.In("ko"));
+        Assert.Empty(note.In("ru"));
     }
 
     [Fact]
@@ -68,8 +64,8 @@ public class ReleaseNotesTests
         var notes = ReleaseNotes.Between(
         [
             ("v9.9.12", "<!-- update\nlevel: optional\n-->"),   // newer than the latest the check found: not yet
-            ("v9.9.11", "<!-- update\nlevel: optional\nko: 새 기능\n-->"),
-            ("v9.9.10", "<!-- update\nlevel: required\nko: 중요한 수정\n-->"),
+            ("v9.9.11", "<!-- update\nlevel: optional\nru: Новая функция\n-->"),
+            ("v9.9.10", "<!-- update\nlevel: required\nru: Важное исправление\n-->"),
             ("v9.9.9", "no block"),
             ("v1.0.0", "<!-- update\nlevel: required\n-->"),    // older than this version
         ], current: "9.9.9", latest: "9.9.11");
@@ -90,12 +86,12 @@ public class ReleaseNotesTests
         Assert.Equal("9.9.11", updates.LatestVersion);
         Assert.Equal(["9.9.11", "9.9.10"], updates.Notes.Select(n => n.Version));
         Assert.True(updates.IsRequired);
-        Assert.Contains("• 중요한 수정", UpdateTexts.Changes(updates, new KoreanOnly()));
+        Assert.Contains("• Важное исправление", UpdateTexts.Changes(updates, new RussianOnly()));
     }
 
-    private sealed class KoreanOnly : Filee.Core.Localization.ILocalizer
+    private sealed class RussianOnly : Filee.Core.Localization.ILocalizer
     {
-        public string Language => "ko";
+        public string Language => "ru";
         public string this[string key] => key;
         public string Format(string key, params object[] args) => key;
         public event EventHandler? LanguageChanged { add { } remove { } }
@@ -111,13 +107,13 @@ public class ReleaseNotesTests
         {
             var path = request.RequestUri!.AbsolutePath;
             object? answer = path.EndsWith("/releases/latest", StringComparison.Ordinal)
-                ? Release("v9.9.11", "<!-- update\nlevel: optional\nko: 새 기능\n-->")
+                ? Release("v9.9.11", "<!-- update\nlevel: optional\nru: Новая функция\n-->")
                 : path.EndsWith("/releases", StringComparison.Ordinal)
                     ? new[]
                     {
                         Release("v9.9.12", "<!-- update\nlevel: optional\n-->", draft: true),
-                        Release("v9.9.11", "<!-- update\nlevel: optional\nko: 새 기능\n-->"),
-                        Release("v9.9.10", "<!-- update\nlevel: required\nko: 중요한 수정\n-->"),
+                        Release("v9.9.11", "<!-- update\nlevel: optional\nru: Новая функция\n-->"),
+                        Release("v9.9.10", "<!-- update\nlevel: required\nru: Важное исправление\n-->"),
                         Release("v1.0.0", "old"),
                     }
                     : null;

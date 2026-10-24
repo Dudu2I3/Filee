@@ -30,7 +30,7 @@ public class FailedFilesTests
         var failure = Assert.Single(item.Failures);
         Assert.Equal("notes.xyz", failure.Name);
         Assert.Equal($"{AppHost.Get<ILocalizer>()["error.unsupported_source"]} (xyz)", failure.Reason);
-        Assert.Equal("1개 실패", item.FailureSummary);
+        Assert.Equal("Ошибок: 1", item.FailureSummary);
         Assert.False(item.CanRetry); // no preset saved: nothing to retry with
     }
 
