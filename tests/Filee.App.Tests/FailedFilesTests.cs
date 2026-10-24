@@ -16,7 +16,7 @@ public class FailedFilesTests
     [AvaloniaFact]
     public void Failures_saved_by_older_versions_are_listed_in_the_current_language()
     {
-        TestServices.EnsureInitialized("ko");
+        TestServices.EnsureInitialized("ru");
         var entry = new HistoryEntry
         {
             PresetName = "PNG",

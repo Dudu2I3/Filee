@@ -167,7 +167,7 @@ public class GroupEditorTests
     }
 
     [AvaloniaTheory]
-    [InlineData("ko")]
+    [InlineData("ru")]
     [InlineData("en")]
     public void The_group_editor_renders(string language)
     {

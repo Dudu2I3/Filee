@@ -256,7 +256,7 @@ public class UiZoomTests
     [AvaloniaFact]
     public void A_window_that_cannot_be_resized_grows_and_scrolls_instead_of_cutting_off()
     {
-        TestServices.EnsureInitialized("ko");
+        TestServices.EnsureInitialized("ru");
         UiZoom.Configure(1, save: null);
         using var vm = new EnginesPageViewModel(AppHost.Get<UserDataStore>(), AppHost.Get<Filee.Core.Conversion.ConverterCatalog>(),
             AppHost.Get<ILocalizer>(), AppHost.Get<EngineDownloadService>());

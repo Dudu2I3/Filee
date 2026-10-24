@@ -1,7 +1,6 @@
 {
   "app.name": "Filee",
   "app.tagline": "Перетащил — и готово.",
-
   "nav.home": "Главная",
   "nav.general": "Общие",
   "nav.triggers": "Горячие клавиши",
@@ -11,7 +10,6 @@
   "nav.theme": "Тема",
   "nav.engines": "Движки",
   "nav.about": "О программе",
-
   "tray.open": "Открыть Filee",
   "tray.pause": "Приостановить горячие клавиши",
   "tray.resume": "Возобновить горячие клавиши",
@@ -23,7 +21,6 @@
   "close.tray": "Оставить в трее",
   "close.quit": "Выйти",
   "close.dont_ask": "Больше не спрашивать",
-
   "home.title": "Главная",
   "home.drop_title": "Перетащите файлы сюда",
   "home.drop_select": "Дважды щелкните, чтобы выбрать файлы",
@@ -47,7 +44,6 @@
   "home.clear_history": "Очистить",
   "home.files": "Файлов: {0}",
   "home.failed_files": "Ошибок: {0}",
-
   "donut.center_drag": "Перетащите сюда",
   "donut.files_same": "{0} × {1}",
   "donut.files_mixed": "Файлов: {0}",
@@ -63,7 +59,6 @@
   "donut.group_caption": "Группа: {0}",
   "donut.flip_to_back": "{0} ↻ оборот",
   "donut.flip_to_front": "{0} ↻ лицо",
-
   "toast.converting": "{0} → {1}",
   "toast.done": "Готово",
   "toast.done_errors": "Не удалось: {0} из {1}",
@@ -76,7 +71,6 @@
   "toast.get_fonts": "Получить шрифты",
   "download.badge": "{0}/с · {1}",
   "download.badge_files": "{0} · файл {1} из {2}",
-
   "error.unsupported_source": "Этот тип файлов не поддерживается",
   "error.empty_file": "Файл пустой (0 байт). Файл, созданный через «Создать» в контекстном меню, остаётся пустым, пока его не откроют в программе и не сохранят",
   "format_request.request": "Запросить этот формат",
@@ -135,17 +129,14 @@
   "notice.geo_rows_without_location": "В некоторых строках нет пригодного местоположения: они сохранены без фигуры",
   "notice.geo_field_names": "Имена полей Shapefile не длиннее 10 символов: некоторые сокращены",
   "notice.geo_shapefile_split": "Shapefile хранит фигуры только одного вида, поэтому точки, линии и полигоны сохранены в отдельные файлы",
-
   "engine.reason.not_installed": "Не установлен",
   "engine.reason.error": "Ошибка при проверке",
   "engine.reason.unsupported_platform": "Недоступен на этой платформе",
   "engine.reason.needs_package": "Нужен {0}. Установите его в разделе «Настройки → Движки»",
   "engine.magick.description": "JPG, PNG, WEBP, AVIF, HEIC, TIFF, GIF, APNG, PSD, RAW с камер и другие.\nКачество, размер и DPI берутся из пресета.",
-  "engine.wic.description": "Картинки JPEG XR (.jxr, .wdp, .hdp), например HDR-скриншоты Windows, — в PNG, JPG и другие форматы, встроенным кодеком Windows.\nHDR приводится к обычной яркости с сохранением деталей в светах.",
   "engine.pdfium.description": "Превращает страницы PDF в PNG, JPG и TIFF (в том числе многостраничный TIFF и GIF) с разрешением из пресета.",
   "engine.pdfsharp.description": "Делает PDF из картинок, объединяет и разделяет PDF, вырезает диапазоны страниц.\nА ещё уменьшает PDF, сжимая картинки внутри.",
   "engine.rhwp.description": "Превращает HWP/HWPX в PDF и конвертирует HWP ↔ HWPX.\nОн же отрисовывает документы, которые идут в PDF через HWPX (DOCX, XLSX, PPTX, электронные книги…).",
-  "engine.unhwp.description": "Достаёт текст, Markdown и HTML из HWP и HWPX.",
   "engine.markdown.description": "Markdown → HTML и простой текст.\nТекстовые файлы и исходники скриптов → TXT в UTF-8 без выполнения скриптов.",
   "engine.spreadsheet.description": "XLSX, XLS, ODS, CSV и TSV друг в друга (XLS — только чтение).\nПо одному CSV на лист.",
   "engine.ooxml.description": "Файлы с макросами и шаблоны (DOCM, XLSM, PPTM, DOTX…) ↔ DOCX, XLSX, PPTX.\nМакросы удаляются.",
@@ -154,45 +145,21 @@
   "engine.pdf-text.description": "Достаёт текст из PDF в порядке чтения, в том числе со страниц в две колонки (сканы не распознаются).",
   "engine.pdf-slides.description": "Превращает PDF в слайды PowerPoint: каждая страница становится картинкой на своём слайде (выглядит как PDF, но не редактируется), текст страницы — в заметках докладчика.",
   "engine.pdf-tables.description": "Превращает таблицы PDF, нарисованные линиями, в книгу Excel — по листу на таблицу, с числами и датами как настоящими значениями.",
-  "engine.email.description": "Письма (EML, Outlook MSG) — в HTML и текст с отправителем, получателями и датой, вместе с картинками; вложения — в ZIP.\nMSG в EML. Сохранённые веб-страницы (MHTML) — в один HTML-файл с картинками.",
-  "engine.data.description": "JSON, JSON Lines, YAML, TOML, XML и CSV друг в друга.\nКонтакты vCard и события iCalendar в CSV и обратно.\nКомментарии отбрасываются. CSV хранит только таблицы.",
   "engine.vector.description": "SVG и SVGZ — в векторный PDF, картинки и DXF; векторизация картинок в SVG; файлы Illustrator, сохранённые с PDF-содержимым.",
-  "engine.icns.description": "Значки приложений macOS (ICNS) из картинок и в картинки.",
-  "engine.font.description": "Шрифты: TTF, OTF, WOFF, WOFF2 и EOT друг в друга.",
-  "engine.cad.description": "Чертежи AutoCAD: DWG ↔ DXF, и оба — в PDF, SVG и PNG.",
-  "engine.model3d.description": "3D-модели: GLB, glTF, STL, OBJ, 3MF и PLY друг в друга, FBX — в любой из них, плюс превью в PNG.",
-  "engine.geo.description": "Векторные геоданные: GeoJSON, KML, KMZ, GPX, Shapefile и CSV (долгота/широта или WKT) друг в друга.\nРезультат — долгота и широта в WGS 84; Shapefile в проекциях (UTM, Web Mercator, Lambert, Albers) пересчитываются.",
   "engine.archive.description": "Распаковывает ZIP, 7Z, RAR, TAR, ISO и другие, упаковывает в ZIP, 7Z или TAR.GZ (7-Zip).",
-  "engine.ebook.description": "EPUB, MOBI, AZW3, FB2 и комиксы (CBZ, CBR) — в PDF, EPUB, DOCX и текст.\nА ещё документы в EPUB, EPUB в KEPUB для Kobo и PDF в CBZ.",
-  "engine.subtitle.description": "Субтитры: SRT, ASS/SSA, WebVTT, SAMI (SMI), LRC, TTML, MicroDVD и SCC друг в друга, с сохранением в UTF-8.\nКорейские SMI и SRT в CP949 / EUC-KR читаются правильно.",
   "engine.ffmpeg.description": "Видео и аудио: MP4, MOV, MKV, WEBM, MP3, M4A, WAV, FLAC и другие.\nА ещё достаёт звук и субтитры, делает анимации GIF и APNG и сохраняет картинки в HEIC.",
-  "engine.pandoc.description": "Markdown и HTML ↔ ODT и RTF, DOCX → Markdown\nreStructuredText, LaTeX, Org, AsciiDoc, Typst, MediaWiki, DocBook, Jupyter и другие ↔ Markdown, HTML, DOCX и ODT\nMarkdown и Org → слайды PPTX",
-  "engine.ghostscript.description": "EPS, PostScript и старые файлы Illustrator — в PDF и картинки; PDF — в EPS и PS.",
-  "engine.tesseract.description": "Распознаёт текст сканов и изображений (OCR): PDF с поиском, DOCX, TXT.",
   "engine.vision.description": "Распознаёт текст сканов и изображений встроенным в macOS распознаванием текста (OCR): PDF с поиском, DOCX, TXT. Ничего скачивать не нужно.",
-  "engine.calibre.description": "Редкие форматы электронных книг (LIT, LRF, CHM, PDB, RB…) и вывод для Kindle (MOBI, AZW3).\nЕсли стоит выше HWPX writer, он же делает PDF из электронных книг (для длинных книг намного быстрее).",
   "engine.libreoffice.description": "Читает старые и редкие форматы: DOC, PPT, Pages, Keynote, Numbers, WordPerfect, ClarisWorks, Publisher, Visio…\nА ещё сохраняет в DOC, XLS, PPT, ODT, ODP, шаблоны OpenDocument и EMF.",
-
   "profile.images": "Изображения",
   "profile.pdf": "PDF",
   "profile.office": "Документы",
   "profile.spreadsheets": "Таблицы",
   "profile.presentations": "Презентации",
-  "profile.hwp": "HWP / HWPX",
   "profile.text": "Текст и Markdown",
-  "profile.ebooks": "Электронные книги",
   "profile.video": "Видео",
   "profile.audio": "Аудио",
-  "profile.subtitles": "Субтитры",
-  "profile.vector": "Векторная графика",
   "profile.archives": "Архивы",
-  "profile.cad": "Чертежи CAD",
-  "profile.fonts": "Шрифты",
-  "profile.data": "Данные",
-  "profile.models": "3D-модели",
-  "profile.geo": "Геоданные",
   "profile.mixed": "Разные файлы",
-
   "preset.crop": "Обрезать",
   "crop.save": "Обрезать и сохранить",
   "crop.reset": "Сбросить",
@@ -274,7 +241,6 @@
   "clip.silence_removed": "Убрано тихих мест: {0}",
   "clip.no_silence": "Тишины не найдено",
   "clip.cannot_play": "Клип не воспроизводится",
-
   "preset.half_size": "Вдвое меньше",
   "preset.grayscale": "Оттенки серого",
   "preset.remove_background": "Убрать фон",
@@ -336,7 +302,6 @@
   "preset.compress_audio": "Сжать аудио",
   "preset.merge_audio": "Объединить аудио",
   "preset.remove_metadata": "Удалить метаданные",
-
   "format.folder": "Папка",
   "format.category.Image": "Изображение",
   "format.category.Pdf": "PDF",
@@ -356,7 +321,6 @@
   "format.category.Data": "Данные",
   "format.category.Model3D": "3D-модель",
   "format.category.Geo": "Геоданные",
-
   "general.title": "Общие",
   "general.language": "Язык",
   "general.language_auto": "Как в системе",
@@ -438,7 +402,6 @@
   "general.reset_library": "Вернуть по умолчанию",
   "general.reset_confirm": "Заменить все пресеты и профили кругового меню на стандартные?",
   "general.imported": "Импортировано: {0}",
-
   "triggers.title": "Горячие клавиши",
   "triggers.description": "Выберите, как открывается круговое меню. Жестов можно добавить сколько угодно.",
   "triggers.macos_permissions": "Разрешите Filee в разделе «Системные настройки > Конфиденциальность и безопасность > Универсальный доступ».\nЕсли Filee уже включён, но жесты не запускаются, удалите его кнопкой − и добавьте снова кнопкой +.\nFinder также спросит разрешение на автоматизацию, когда вы впервые воспользуетесь сочетанием для выделенных файлов.",
@@ -494,7 +457,6 @@
   "triggers.excluded_none_running": "Нет других программ с открытыми окнами.",
   "triggers.excluded_note": "Жесты и сочетания ничего не делают, пока указатель над этими программами.",
   "triggers.paused": "Горячие клавиши приостановлены",
-
   "toolbar.title": "Круговое меню",
   "toolbar.step_profile": "1. Выберите профиль",
   "toolbar.step_arrange": "2. Расставьте пресеты",
@@ -560,7 +522,6 @@
   "toolbar.mixed_others": "Остальные смеси файлов открывают «{0}».",
   "toolbar.mixed_others_self": "Не осталось смешанного профиля без отметок, поэтому этот используется и для всех остальных смесей.",
   "tags.remove": "Убрать",
-
   "presets.title": "Пресеты",
   "presets.add": "Новый",
   "presets.duplicate": "Дублировать",
@@ -759,7 +720,6 @@
   "presets.delete_confirm": "Удалить «{0}»? Он также пропадёт из всех круговых меню и групп.",
   "presets.name_required": "Введите название",
   "presets.select": "Выберите пресет, чтобы изменить его",
-
   "theme.title": "Тема",
   "theme.style": "Стиль темы",
   "theme.style.Soft": "Filee Soft",
@@ -796,7 +756,6 @@
   "theme.preview": "Предпросмотр",
   "theme.preview_toggle": "Пример переключателя (только предпросмотр, не настройка)",
   "theme.preview_toggle_hint": "Показывает, как выглядят переключатели в этой теме. Не меняет никаких настроек.",
-
   "engines.title": "Движки конвертации",
   "engines.description": "Для каждой конвертации Filee выбирает лучший доступный движок.\nЕсли с задачей справляются несколько, выбирается тот, что выше.",
   "engines.available": "Готовы",
@@ -871,7 +830,6 @@
   "engines.state.unpacking": "Устанавливается…",
   "engines.state.installed": "Установлен",
   "engines.state.failed": "Ошибка: {0}",
-
   "about.title": "О программе",
   "about.updates": "Обновления",
   "common.search": "Поиск",
@@ -896,7 +854,6 @@
   "feedback.notice_text": "Звезда на GitHub помогает другим найти Filee.\nБудем рады и сообщениям о проблемах, и идеям.",
   "feedback.star": "Поставить звезду на GitHub",
   "feedback.issue": "Сообщить о проблеме или идее",
-
   "common.ok": "OK",
   "common.cancel": "Отмена",
   "common.save": "Сохранить",
@@ -906,7 +863,6 @@
   "common.no": "Нет",
   "common.on": "Вкл.",
   "common.off": "Выкл.",
-
   "setup.title": "Выберите движки конвертации",
   "setup.description": "Картинки, PDF, документы Office, HWP, электронные книги, архивы, шрифты, CAD и 3D-модели уже конвертируются.\nДвижки нужно скачивать только для видео, аудио и редких форматов.",
   "setup.note": "Движки можно установить или удалить в любой момент в разделе «Настройки → Движки».",
@@ -1067,7 +1023,6 @@
   "watch.status_starting": "Запуск…",
   "watch.status_error": "Не удаётся следить за этой папкой: {0}",
   "watch.cli_hint": "Также из командной строки: filee watch <папка> --to <формат>",
-
   "preset.sheet_studio": "PDF + Редактор",
   "sheet_studio.title": "Подготовка таблицы к PDF",
   "sheet_studio.sheets": "Листы и порядок страниц",
@@ -1107,7 +1062,6 @@
   "sheet_studio.apply_fix": "Применить рекомендуемую разметку",
   "sheet_studio.add_region": "+ Добавить ещё область",
   "sheet_studio.region_name": "{0} · область {1}",
-
   "whats_new.title": "Что нового в Filee {0}",
   "whats_new.previous": "Назад",
   "whats_new.next": "Далее",

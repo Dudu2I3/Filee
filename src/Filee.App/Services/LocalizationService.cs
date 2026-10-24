@@ -106,37 +106,8 @@ public sealed class LocalizationService : ILocalizer
             return Languages.First(l => l.Code.Equals(setting, StringComparison.OrdinalIgnoreCase)).Code;
 
         var ui = osLanguage();
-        if (ui.Equals("tr", StringComparison.OrdinalIgnoreCase) || ui.StartsWith("tr-", StringComparison.OrdinalIgnoreCase))
-            return "tr";
-        if (ui.StartsWith("ja", StringComparison.OrdinalIgnoreCase))
-            return "ja";
-        if (ui.StartsWith("ko", StringComparison.OrdinalIgnoreCase))
-            return "ko";
-        if (ui.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
-            return AppLanguages.IsTraditionalChinese(ui) ? "zh-TW" : "zh-CN";
-        if (ui.StartsWith("pl", StringComparison.OrdinalIgnoreCase))
-            return "pl";
-        if (ui.StartsWith("es", StringComparison.OrdinalIgnoreCase))
-            return "es";
-        if (ui.StartsWith("hi", StringComparison.OrdinalIgnoreCase))
-            return "hi";
-        if (ui.StartsWith("ru", StringComparison.OrdinalIgnoreCase))
+        if (ui.Equals("ru", StringComparison.OrdinalIgnoreCase) || ui.StartsWith("ru-", StringComparison.OrdinalIgnoreCase))
             return "ru";
-        // "ar" and every region ("ar-SA", "ar-EG", …), but not other codes starting with "ar".
-        if (ui.Equals("ar", StringComparison.OrdinalIgnoreCase) || ui.StartsWith("ar-", StringComparison.OrdinalIgnoreCase))
-            return "ar";
-        // Brazilian Portuguese is the only Portuguese, so Portugal's "pt-PT" gets it too.
-        if (ui.StartsWith("pt", StringComparison.OrdinalIgnoreCase))
-            return "pt-BR";
-        // "fr" and every region ("fr-FR", "fr-CA", …), but not North Frisian "frr".
-        if (ui.Equals("fr", StringComparison.OrdinalIgnoreCase) || ui.StartsWith("fr-", StringComparison.OrdinalIgnoreCase))
-            return "fr";
-        // "ne" and "ne-NP", but not Newari "new".
-        if (ui.Equals("ne", StringComparison.OrdinalIgnoreCase) || ui.StartsWith("ne-", StringComparison.OrdinalIgnoreCase))
-            return "ne";
-        // "th" and "th-TH", but not Tharu "thl".
-        if (ui.Equals("th", StringComparison.OrdinalIgnoreCase) || ui.StartsWith("th-", StringComparison.OrdinalIgnoreCase))
-            return "th";
         return "en";
     }
 

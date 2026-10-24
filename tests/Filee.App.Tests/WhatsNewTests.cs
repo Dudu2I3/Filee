@@ -472,19 +472,10 @@ public class WhatsNewTests
     [AvaloniaTheory]
     [InlineData("en", false)]
     [InlineData("en", true)]
-    [InlineData("ar", false)]
-    [InlineData("ar", true)]
-    [InlineData("es", false)]
-    [InlineData("es", true)]
-    [InlineData("hi", false)]
-    [InlineData("ko", true)]
-    [InlineData("ja", false)]
-    [InlineData("zh-CN", false)]
-    [InlineData("pl", false)]
     [InlineData("ru", false)]
     [InlineData("ru", true)]
-    [InlineData("pt-BR", false)]
-    [InlineData("fr", false)]
+    [InlineData("ru", false)]
+    [InlineData("ru", true)]
     public void Window_renders(string language, bool dark)
     {
         TestServices.EnsureInitialized(language);

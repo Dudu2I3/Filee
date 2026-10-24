@@ -60,7 +60,7 @@ public class DownloadBadgeTests
     [AvaloniaFact]
     public void Each_language_has_its_own_files_counter()
     {
-        TestServices.EnsureInitialized("ko");
+        TestServices.EnsureInitialized("ru");
         var loc = AppHost.Get<ILocalizer>();
         InCulture("en-US", () =>
             Assert.Equal("640 KB/s · 2.0 / 3.1 MB · 3개 중 2번째", DownloadBadge.Format(loc, 640_000, new JobTransfer(2 * MB, 3_100_000, 1, 3, 9 * MB))));

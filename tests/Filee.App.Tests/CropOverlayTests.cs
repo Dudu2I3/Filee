@@ -188,7 +188,7 @@ public class CropOverlayTests
     [AvaloniaTheory]
     [InlineData("en", false)]
     [InlineData("en", true)]
-    [InlineData("ar", false)]
+    [InlineData("ru", false)]
     public void A_over_the_picture_opens_the_dial_around_the_pointer(string language, bool dark)
     {
         WithOverlay(language, dark, ["harbour.jpg", "two.jpg"], (window, vm, suffix) =>

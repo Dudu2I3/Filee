@@ -12,9 +12,8 @@ namespace Filee.App.Tests;
 public class SponsorTests
 {
     [AvaloniaTheory]
-    [InlineData("ko", SponsorLinks.FairyUrl)]
     [InlineData("en", SponsorLinks.GitHubSponsorsUrl)]
-    [InlineData("zh-CN", SponsorLinks.GitHubSponsorsUrl)]
+    [InlineData("ru", SponsorLinks.GitHubSponsorsUrl)]
     public void The_way_that_suits_the_language_comes_first(string language, string url)
     {
         var ways = SponsorLinks.For(language);
@@ -25,8 +24,7 @@ public class SponsorTests
 
     [AvaloniaTheory]
     [InlineData("en")]
-    [InlineData("ko")]
-    [InlineData("zh-CN")]
+    [InlineData("ru")]
     public void Every_way_has_its_logo_and_note(string language)
     {
         TestServices.EnsureInitialized(language);

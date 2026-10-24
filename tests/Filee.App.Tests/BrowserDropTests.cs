@@ -296,8 +296,7 @@ public class BrowserDropTests
 
     [AvaloniaTheory]
     [InlineData("en")]
-    [InlineData("ko")]
-    [InlineData("zh-CN")]
+    [InlineData("ru")]
     public void The_settings_for_files_from_a_browser_render_and_save(string language)
     {
         TestServices.EnsureInitialized(language);

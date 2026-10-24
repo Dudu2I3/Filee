@@ -17,24 +17,16 @@ internal static class SoftPalette
     /// <summary>The default corner radius (ThemeSettings.CornerRadius).</summary>
     public const double DefaultCornerRadius = 16;
 
-    /// <summary>Embedded Noto fonts (see build/fetch-fonts.ps1). Missing files fall back to system fonts.</summary>
-    private const string Latin = "fonts:Filee#Noto Sans";
-    private const string Arabic = "fonts:Filee#Noto Sans Arabic";
-    private const string Devanagari = "fonts:Filee#Noto Sans Devanagari";
-    private const string Thai = "fonts:Filee#Noto Sans Thai";
-
-    /// <summary>Each CJK region's embedded font and its system fonts (Windows, then macOS).</summary>
-    private static readonly (string Embedded, string System) Japanese =
-        ("fonts:Filee#Noto Sans JP", "Yu Gothic UI, Meiryo, Hiragino Sans");
-    private static readonly (string Embedded, string System) Korean =
-        ("fonts:Filee#Noto Sans KR", "Malgun Gothic, Apple SD Gothic Neo");
-    private static readonly (string Embedded, string System) Chinese =
-        ("fonts:Filee#Noto Sans SC", "Microsoft YaHei, PingFang SC");
-
     /// <summary>
-    /// Traditional Chinese has no embedded font (two more Noto CJK files would add 11 MB): Windows and macOS always carry
-    /// these. Listed before the embedded Noto Sans SC, whose Han shapes differ, so zh-TW text takes Traditional shapes.
+    /// The embedded Noto Sans (Latin and Cyrillic; see build/fetch-fonts.ps1). A missing file falls back to system fonts.
+    /// Filee Lite ships English and Russian only, so no other script has a font of its own.
     /// </summary>
+    private const string Latin = "fonts:Filee#Noto Sans";
+
+    /// <summary>Each CJK region's system fonts (Windows, then macOS): the installer's font chain.</summary>
+    private const string Japanese = "Yu Gothic UI, Meiryo, Hiragino Sans";
+    private const string Korean = "Malgun Gothic, Apple SD Gothic Neo";
+    private const string Chinese = "Microsoft YaHei, PingFang SC";
     private const string TraditionalChineseSystem = "Microsoft JhengHei UI, Microsoft JhengHei, PingFang TC";
 
     /// <summary>All resource keys written by ApplyAccent that must be cleared from top level when per-variant dictionaries are used.</summary>
@@ -115,21 +107,8 @@ internal static class SoftPalette
         res["SoftRadiusPill"] = new CornerRadius(Math.Round(r * 2.5));
     }
 
-    /// <summary>
-    /// The UI font chain. Han characters look different in Japanese, Korean and Chinese fonts, so the UI language's
-    /// CJK fonts come first, embedded and system ones alike; other languages keep Korean first.
-    /// </summary>
-    public static string FontFamilies(string language)
-    {
-        (string Embedded, string System)[] cjk =
-            language.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ? [Japanese, Korean, Chinese]
-            : language.StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? [Chinese, Korean, Japanese]
-            : [Korean, Chinese, Japanese];
-        var traditional = AppLanguages.IsTraditionalChinese(language) ? $"{TraditionalChineseSystem}, " : "";
-        // Noto Sans comes first: the first face also draws the trimming ellipsis, which Noto Sans Arabic lacks.
-        return $"{Latin}, {Arabic}, {Devanagari}, {Thai}, {traditional}{string.Join(", ", cjk.Select(f => f.Embedded))}, Segoe UI, Nirmala UI, Leelawadee UI, "
-            + $"{string.Join(", ", cjk.Select(f => f.System))}, Kohinoor Devanagari, Geeza Pro, Thonburi, sans-serif";
-    }
+    /// <summary>The UI font chain: Noto Sans (Latin, Cyrillic), then the system font.</summary>
+    public static string FontFamilies(string language) => $"{Latin}, Segoe UI, sans-serif";
 
     /// <summary>
     /// The font chain from Windows' own UI fonts only (no embedded fonts), with the UI language's CJK font first: what
@@ -137,12 +116,12 @@ internal static class SoftPalette
     /// </summary>
     public static string SystemFontFamilies(string language)
     {
-        (string Embedded, string System)[] cjk =
+        string[] cjk =
             language.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ? [Japanese, Korean, Chinese]
             : language.StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? [Chinese, Korean, Japanese]
             : [Korean, Chinese, Japanese];
         var traditional = AppLanguages.IsTraditionalChinese(language) ? $"{TraditionalChineseSystem}, " : "";
-        return $"Segoe UI, Nirmala UI, Leelawadee UI, {traditional}{string.Join(", ", cjk.Select(f => f.System))}, sans-serif";
+        return $"Segoe UI, Nirmala UI, Leelawadee UI, {traditional}{string.Join(", ", cjk)}, sans-serif";
     }
 
     /// <summary>The resource Soft.axaml's Window style takes <see cref="Visual.FlowDirection"/> from.</summary>

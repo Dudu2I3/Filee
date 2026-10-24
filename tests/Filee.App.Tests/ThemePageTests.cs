@@ -21,8 +21,8 @@ public class ThemePageTests
     [AvaloniaTheory]
     [InlineData("en", ThemeMode.Light)]
     [InlineData("en", ThemeMode.Dark)]
-    [InlineData("ar", ThemeMode.Light)]
-    [InlineData("ar", ThemeMode.Dark)]
+    [InlineData("ru", ThemeMode.Light)]
+    [InlineData("ru", ThemeMode.Dark)]
     public void Visual_picker_and_swatches_stay_in_sync_and_persist(string language, ThemeMode mode)
     {
         TestServices.EnsureInitialized(language);

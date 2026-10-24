@@ -18,7 +18,7 @@ public class EngineUpdateTests
     [AvaloniaFact]
     public void An_outdated_download_offers_the_new_version()
     {
-        TestServices.EnsureInitialized("ko");
+        TestServices.EnsureInitialized("ru");
         var state = Ffmpeg();
         Assert.SkipUnless(EngineDownloads.CanDownload(state.Package), "FFmpeg is not downloaded on this platform");
 
@@ -48,7 +48,7 @@ public class EngineUpdateTests
     [AvaloniaFact]
     public void The_notice_names_the_engines_and_update_starts_them()
     {
-        TestServices.EnsureInitialized("ko");
+        TestServices.EnsureInitialized("ru");
         var updated = 0;
         var notice = new EngineUpdateNoticeWindow("FFmpeg 8.0 · LibreOffice 26.8", () => updated++);
         notice.Show();

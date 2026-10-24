@@ -1,7 +1,6 @@
 {
   "app.name": "Filee",
   "app.tagline": "Drag, drop, converted.",
-
   "nav.home": "Home",
   "nav.general": "General",
   "nav.triggers": "Shortcuts",
@@ -11,7 +10,6 @@
   "nav.theme": "Theme",
   "nav.engines": "Engines",
   "nav.about": "About",
-
   "tray.open": "Open Filee",
   "tray.pause": "Pause shortcuts",
   "tray.resume": "Resume shortcuts",
@@ -23,7 +21,6 @@
   "close.tray": "Keep in tray",
   "close.quit": "Quit",
   "close.dont_ask": "Don't ask again",
-
   "home.title": "Home",
   "home.drop_title": "Drop files here",
   "home.drop_select": "Double-click to select files",
@@ -47,7 +44,6 @@
   "home.clear_history": "Clear",
   "home.files": "{0} files",
   "home.failed_files": "{0} failed",
-
   "donut.center_drag": "Bring files here",
   "donut.files_same": "{0} × {1}",
   "donut.files_mixed": "{0} files",
@@ -63,7 +59,6 @@
   "donut.group_caption": "Group of {0}",
   "donut.flip_to_back": "{0} ↻ back",
   "donut.flip_to_front": "{0} ↻ front",
-
   "toast.converting": "{0} → {1}",
   "toast.done": "Done",
   "toast.done_errors": "{0} of {1} failed",
@@ -76,7 +71,6 @@
   "toast.get_fonts": "Get fonts",
   "download.badge": "{0}/s · {1}",
   "download.badge_files": "{0} · {1} of {2} files",
-
   "error.unsupported_source": "This file type isn't supported",
   "error.empty_file": "The file is empty (0 bytes). A file made with “New” in the right-click menu stays empty until you open it in its app and save it",
   "format_request.request": "Request this format",
@@ -135,17 +129,14 @@
   "notice.geo_rows_without_location": "Some rows have no usable location and were kept without a shape",
   "notice.geo_field_names": "Shapefile field names are 10 characters at most: some were shortened",
   "notice.geo_shapefile_split": "A Shapefile holds one kind of shape, so points, lines and polygons were saved as separate files",
-
   "engine.reason.not_installed": "Not installed",
   "engine.reason.error": "Error while checking",
   "engine.reason.unsupported_platform": "Not available on this platform",
   "engine.reason.needs_package": "Needs {0}. Install it in Settings → Engines",
   "engine.magick.description": "JPG, PNG, WEBP, AVIF, HEIC, TIFF, GIF, APNG, PSD, camera RAW and more.\nQuality, size and DPI follow your preset.",
-  "engine.wic.description": "JPEG XR pictures (.jxr, .wdp, .hdp), such as HDR screenshots of Windows, to PNG, JPG and other images, with Windows' own codec.\nHDR is tone-mapped so highlights keep their detail.",
   "engine.pdfium.description": "Renders PDF pages to PNG, JPG and TIFF (also multi-page TIFF and GIF) at the preset's resolution.",
   "engine.pdfsharp.description": "Makes PDFs from images and merges, splits or cuts page ranges out of PDFs.\nAlso makes PDFs smaller by scaling down their pictures.",
   "engine.rhwp.description": "Renders HWP/HWPX to PDF and converts HWP ↔ HWPX.\nIt also draws documents that reach PDF through HWPX (DOCX, XLSX, PPTX, e-books…).",
-  "engine.unhwp.description": "Extracts text, Markdown and HTML from HWP and HWPX.",
   "engine.markdown.description": "Markdown → HTML and plain text.\nText and script source files → UTF-8 TXT, without running scripts.",
   "engine.spreadsheet.description": "XLSX, XLS, ODS, CSV and TSV into each other (XLS is read only).\nOne CSV per sheet.",
   "engine.ooxml.description": "Macro-enabled files and templates (DOCM, XLSM, PPTM, DOTX…) ↔ DOCX, XLSX, PPTX.\nMacros are removed.",
@@ -154,45 +145,21 @@
   "engine.pdf-text.description": "Extracts the text of PDFs in reading order, also from two-column pages (no OCR for scans).",
   "engine.pdf-slides.description": "Turns PDFs into PowerPoint slides: each page becomes a picture on its own slide (looks like the PDF, not editable), with the page text in the speaker notes.",
   "engine.pdf-tables.description": "Turns the tables drawn with lines in a PDF into an Excel workbook, one sheet each, with numbers and dates as real values.",
-  "engine.email.description": "E-mails (EML, Outlook MSG) to HTML and text with sender, recipients and date, pictures included; attachments into a ZIP.\nMSG to EML. Saved web pages (MHTML) to one HTML file with their pictures.",
-  "engine.data.description": "JSON, JSON Lines, YAML, TOML, XML and CSV into each other.\nvCard contacts and iCalendar events to CSV and back.\nComments are dropped. CSV holds tables only.",
   "engine.vector.description": "SVG and SVGZ to vector PDF, images and DXF; pictures traced into SVG; Illustrator files saved with PDF content.",
-  "engine.icns.description": "macOS app icons (ICNS) from and to images.",
-  "engine.font.description": "Fonts: TTF, OTF, WOFF, WOFF2 and EOT into each other.",
-  "engine.cad.description": "AutoCAD drawings: DWG ↔ DXF, and both to PDF, SVG and PNG.",
-  "engine.model3d.description": "3D models: GLB, glTF, STL, OBJ, 3MF and PLY into each other, FBX into any of them, and a PNG preview.",
-  "engine.geo.description": "Geospatial vector data: GeoJSON, KML, KMZ, GPX, Shapefile and CSV (longitude/latitude or WKT) into each other.\nResults are WGS 84 longitude/latitude; projected Shapefiles (UTM, Web Mercator, Lambert, Albers) are converted.",
   "engine.archive.description": "Extracts ZIP, 7Z, RAR, TAR, ISO and more, and packs ZIP, 7Z or TAR.GZ (7-Zip).",
-  "engine.ebook.description": "EPUB, MOBI, AZW3, FB2 and comics (CBZ, CBR) to PDF, EPUB, DOCX and text.\nAlso documents to EPUB, EPUB to KEPUB for Kobo and PDF to CBZ.",
-  "engine.subtitle.description": "Subtitles: SRT, ASS/SSA, WebVTT, SAMI (SMI), LRC, TTML, MicroDVD and SCC into each other, saved as UTF-8.\nKorean SMI and SRT files in CP949 / EUC-KR read correctly.",
   "engine.ffmpeg.description": "Video and audio: MP4, MOV, MKV, WEBM, MP3, M4A, WAV, FLAC and more.\nAlso extracts sound and subtitles, makes GIF and APNG animations and saves images as HEIC.",
-  "engine.pandoc.description": "Markdown and HTML ↔ ODT and RTF, DOCX → Markdown\nreStructuredText, LaTeX, Org, AsciiDoc, Typst, MediaWiki, DocBook, Jupyter and more ↔ Markdown, HTML, DOCX and ODT\nMarkdown and Org → PPTX slides",
-  "engine.ghostscript.description": "EPS, PostScript and older Illustrator files to PDF and images; PDF to EPS and PS.",
-  "engine.tesseract.description": "Recognizes the text of scans and pictures (OCR): searchable PDF, DOCX, TXT.",
   "engine.vision.description": "Recognizes the text of scans and pictures with macOS's own text recognition (OCR): searchable PDF, DOCX, TXT. Nothing to download.",
-  "engine.calibre.description": "Rare e-book formats (LIT, LRF, CHM, PDB, RB…) and Kindle output (MOBI, AZW3).\nAbove the HWPX writer, it also makes the PDFs of e-books (much faster for long books).",
   "engine.libreoffice.description": "Reads older and less common formats: DOC, PPT, Pages, Keynote, Numbers, WordPerfect, ClarisWorks, Publisher, Visio…\nAlso saves as DOC, XLS, PPT, ODT, ODP, OpenDocument templates and EMF.",
-
   "profile.images": "Images",
   "profile.pdf": "PDF",
   "profile.office": "Documents",
   "profile.spreadsheets": "Spreadsheets",
   "profile.presentations": "Presentations",
-  "profile.hwp": "HWP / HWPX",
   "profile.text": "Text & Markdown",
-  "profile.ebooks": "E-books",
   "profile.video": "Video",
   "profile.audio": "Audio",
-  "profile.subtitles": "Subtitles",
-  "profile.vector": "Vector graphics",
   "profile.archives": "Archives",
-  "profile.cad": "CAD drawings",
-  "profile.fonts": "Fonts",
-  "profile.data": "Data",
-  "profile.models": "3D models",
-  "profile.geo": "Geospatial",
   "profile.mixed": "Mixed files",
-
   "preset.crop": "Crop",
   "crop.save": "Crop & Save",
   "crop.reset": "Reset",
@@ -274,7 +241,6 @@
   "clip.silence_removed": "Silence removed: {0}",
   "clip.no_silence": "No silence found",
   "clip.cannot_play": "The clip can't be played",
-
   "preset.half_size": "Half size",
   "preset.grayscale": "Grayscale",
   "preset.remove_background": "Remove background",
@@ -336,7 +302,6 @@
   "preset.compress_audio": "Compress audio",
   "preset.merge_audio": "Merge audio",
   "preset.remove_metadata": "Remove metadata",
-
   "format.folder": "Folder",
   "format.category.Image": "Image",
   "format.category.Pdf": "PDF",
@@ -356,7 +321,6 @@
   "format.category.Data": "Data",
   "format.category.Model3D": "3D model",
   "format.category.Geo": "Geospatial",
-
   "general.title": "General",
   "general.language": "Language",
   "general.language_auto": "System default",
@@ -438,7 +402,6 @@
   "general.reset_library": "Reset to defaults",
   "general.reset_confirm": "Replace all presets and toolbar profiles with the defaults?",
   "general.imported": "Imported {0} items",
-
   "triggers.title": "Shortcuts",
   "triggers.description": "Choose how the donut toolbar opens. You can add as many gestures as you like.",
   "triggers.macos_permissions": "Allow Filee in System Settings > Privacy & Security > Accessibility.\nIf Filee is already switched on but gestures don't start, remove it with − and add it again with +.\nFinder also asks for Automation permission the first time you use a selection shortcut.",
@@ -494,7 +457,6 @@
   "triggers.excluded_none_running": "No other app has a window open.",
   "triggers.excluded_note": "Gestures and shortcuts do nothing while the pointer is over these apps.",
   "triggers.paused": "Shortcuts are paused",
-
   "toolbar.title": "Donut toolbar",
   "toolbar.step_profile": "1. Choose a profile",
   "toolbar.step_arrange": "2. Arrange presets",
@@ -560,7 +522,6 @@
   "toolbar.mixed_others": "Other mixes of files open “{0}”.",
   "toolbar.mixed_others_self": "No mixed profile is left with nothing checked, so this one is also used for every other mix.",
   "tags.remove": "Remove",
-
   "presets.title": "Presets",
   "presets.add": "New",
   "presets.duplicate": "Duplicate",
@@ -759,7 +720,6 @@
   "presets.delete_confirm": "Delete “{0}”? It will also be removed from every toolbar and group.",
   "presets.name_required": "Enter a name",
   "presets.select": "Select a preset to edit it",
-
   "theme.title": "Theme",
   "theme.style": "Theme style",
   "theme.style.Soft": "Filee Soft",
@@ -796,7 +756,6 @@
   "theme.preview": "Preview",
   "theme.preview_toggle": "Sample switch (preview only, not a setting)",
   "theme.preview_toggle_hint": "Shows how switches look in this theme. It doesn't change any setting.",
-
   "engines.title": "Conversion engines",
   "engines.description": "Filee picks the best available engine for each conversion.\nWhen several can do the same job, the higher one wins.",
   "engines.available": "Ready",
@@ -871,7 +830,6 @@
   "engines.state.unpacking": "Installing…",
   "engines.state.installed": "Installed",
   "engines.state.failed": "Failed: {0}",
-
   "about.title": "About",
   "about.updates": "Updates",
   "common.search": "Search",
@@ -896,7 +854,6 @@
   "feedback.notice_text": "A star on GitHub helps other people find Filee.\nProblems and ideas are welcome too.",
   "feedback.star": "Star on GitHub",
   "feedback.issue": "Report a problem or idea",
-
   "common.ok": "OK",
   "common.cancel": "Cancel",
   "common.save": "Save",
@@ -906,7 +863,6 @@
   "common.no": "No",
   "common.on": "On",
   "common.off": "Off",
-
   "setup.title": "Choose conversion engines",
   "setup.description": "Images, PDF, Office documents, HWP, e-books, archives, fonts, CAD and 3D models already convert.\nDownload engines only for video and audio or rare formats.",
   "setup.note": "You can install or remove engines at any time in Settings → Engines.",
@@ -1067,7 +1023,6 @@
   "watch.status_starting": "Starting…",
   "watch.status_error": "Can't watch this folder: {0}",
   "watch.cli_hint": "Also on the command line: filee watch <folder> --to <format>",
-
   "preset.sheet_studio": "PDF + Edit",
   "sheet_studio.title": "Spreadsheet Print Studio",
   "sheet_studio.sheets": "Sheets and output order",
@@ -1107,7 +1062,6 @@
   "sheet_studio.apply_fix": "Apply suggested layout",
   "sheet_studio.add_region": "+ Add another region",
   "sheet_studio.region_name": "{0} · region {1}",
-
   "whats_new.title": "What's new in Filee {0}",
   "whats_new.previous": "Previous",
   "whats_new.next": "Next",
