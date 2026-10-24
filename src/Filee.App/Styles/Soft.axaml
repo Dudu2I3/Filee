@@ -22,27 +22,28 @@
           <SolidColorBrush x:Key="SuccessBrush" Color="#0F7A5A" />
           <SolidColorBrush x:Key="WarningBrush" Color="#9A5B0C" />
           <BoxShadows x:Key="CardShadow">0 1 3 0 #12000000, 0 6 18 0 #0D000000</BoxShadows>
-          <SolidColorBrush x:Key="AccentBrush" Color="#7F77DD" />
-          <SolidColorBrush x:Key="AccentSoftBrush" Color="#2E7F77DD" />
-          <SolidColorBrush x:Key="AccentFaintBrush" Color="#177F77DD" />
-          <SolidColorBrush x:Key="AccentStrongBrush" Color="#5F59A6" />
+          <SolidColorBrush x:Key="AccentBrush" Color="#007AFF" />
+          <SolidColorBrush x:Key="AccentSoftBrush" Color="#2E007AFF" />
+          <SolidColorBrush x:Key="AccentFaintBrush" Color="#17007AFF" />
+          <SolidColorBrush x:Key="AccentStrongBrush" Color="#0A5FBF" />
           <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
-          <SolidColorBrush x:Key="PageBrush" Color="#1B1B19" />
-          <SolidColorBrush x:Key="SurfaceBrush" Color="#262624" />
-          <SolidColorBrush x:Key="SurfaceAltBrush" Color="#31312E" />
-          <SolidColorBrush x:Key="SubtleBorderBrush" Color="#1CFFFFFF" />
-          <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F1EFE8" />
-          <SolidColorBrush x:Key="TextSecondaryBrush" Color="#AEACA4" />
+          <!-- Apple's dark system colours (Filee Lite). -->
+          <SolidColorBrush x:Key="PageBrush" Color="#1C1C1E" />
+          <SolidColorBrush x:Key="SurfaceBrush" Color="#2C2C2E" />
+          <SolidColorBrush x:Key="SurfaceAltBrush" Color="#3A3A3C" />
+          <SolidColorBrush x:Key="SubtleBorderBrush" Color="#38FFFFFF" />
+          <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TextSecondaryBrush" Color="#99EBEBF5" />
           <SolidColorBrush x:Key="DangerBrush" Color="#F09595" />
           <SolidColorBrush x:Key="SuccessBrush" Color="#5DCAA5" />
           <SolidColorBrush x:Key="WarningBrush" Color="#EF9F27" />
           <BoxShadows x:Key="CardShadow">0 1 3 0 #40000000, 0 8 24 0 #33000000</BoxShadows>
-          <SolidColorBrush x:Key="AccentBrush" Color="#7F77DD" />
-          <SolidColorBrush x:Key="AccentSoftBrush" Color="#2E7F77DD" />
-          <SolidColorBrush x:Key="AccentFaintBrush" Color="#177F77DD" />
-          <SolidColorBrush x:Key="AccentStrongBrush" Color="#5F59A6" />
+          <SolidColorBrush x:Key="AccentBrush" Color="#0A84FF" />
+          <SolidColorBrush x:Key="AccentSoftBrush" Color="#2E0A84FF" />
+          <SolidColorBrush x:Key="AccentFaintBrush" Color="#170A84FF" />
+          <SolidColorBrush x:Key="AccentStrongBrush" Color="#0A5FBF" />
           <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>

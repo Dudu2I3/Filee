@@ -161,6 +161,7 @@ public sealed class ThemeService(IPlatformServices platform)
         }
 
         Motion.Configure(theme.ReduceMotion, () => _platform.PrefersReducedMotion);
+        Filee.App.Controls.DonutAppearance.Set(theme.DonutStyle, Filee.App.Controls.DonutAppearance.NativeBlur);
     }
 
     /// <summary>The UI font chain for <paramref name="language"/> (see <see cref="SoftPalette.FontFamilies"/>).</summary>

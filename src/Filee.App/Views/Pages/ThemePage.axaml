@@ -131,6 +131,40 @@
         </StackPanel>
       </Border>
 
+      <!-- The donut's look: Liquid Glass or the classic slices -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="label" Text="{DynamicResource theme.donut_style}" Margin="0" />
+          <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto">
+            <Button Classes="choice-card"
+                    Classes.selected="{Binding IsLiquidGlass}"
+                    Command="{Binding SetDonutStyleCommand}"
+                    CommandParameter="{x:Static settings:DonutStyle.LiquidGlass}"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                    VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+              <StackPanel Spacing="6" VerticalAlignment="Top">
+                <TextBlock Classes="choice-title" Text="{DynamicResource theme.donut_style.glass}" />
+                <TextBlock Classes="choice-desc" Text="{DynamicResource theme.donut_style.glass_hint}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="2"
+                    Classes="choice-card"
+                    Classes.selected="{Binding !IsLiquidGlass}"
+                    Command="{Binding SetDonutStyleCommand}"
+                    CommandParameter="{x:Static settings:DonutStyle.Classic}"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                    VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+              <StackPanel Spacing="6" VerticalAlignment="Top">
+                <TextBlock Classes="choice-title" Text="{DynamicResource theme.donut_style.classic}" />
+                <TextBlock Classes="choice-desc" Text="{DynamicResource theme.donut_style.classic_hint}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Button>
+          </Grid>
+          <ToggleSwitch IsVisible="{Binding CanUseNativeGlass}" IsChecked="{Binding NativeGlass}" Content="{DynamicResource theme.native_glass}" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" IsVisible="{Binding CanUseNativeGlass}" Text="{DynamicResource theme.native_glass_hint}" />
+        </StackPanel>
+      </Border>
+
       <!-- Appearance Mode: System / Light / Dark -->
       <Border Classes="card">
         <StackPanel Spacing="8">

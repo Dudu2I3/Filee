@@ -19,6 +19,16 @@ public enum ThemeStyle
     MaterialYou,
 }
 
+/// <summary>How the donut toolbar is drawn (Settings → Theme).</summary>
+public enum DonutStyle
+{
+    /// <summary>Separate rounded slices on the theme's surface colour.</summary>
+    Classic,
+
+    /// <summary>One translucent ring like Apple's Liquid Glass: tint, highlight, thin edges, a blue active sector.</summary>
+    LiquidGlass,
+}
+
 /// <summary>What closing the main window does (Settings → General).</summary>
 public enum CloseAction
 {
@@ -37,10 +47,19 @@ public sealed class ThemeSettings
 {
     public ThemeStyle Style { get; set; } = ThemeStyle.Soft;
 
-    public ThemeMode Mode { get; set; } = ThemeMode.System;
+    public ThemeMode Mode { get; set; } = ThemeMode.Dark;
+
+    /// <summary>The donut's look; <see cref="DonutStyle.LiquidGlass"/> unless the user keeps the classic slices.</summary>
+    public DonutStyle DonutStyle { get; set; } = DonutStyle.LiquidGlass;
+
+    /// <summary>
+    /// macOS: blur what is behind the glass donut with the system's own view (NSVisualEffectView, NSGlassEffectView on
+    /// macOS 26). Experimental; off draws the denser tint that stays readable on any background.
+    /// </summary>
+    public bool NativeGlass { get; set; }
 
     /// <summary>Accent colour as <c>#RRGGBB</c>.</summary>
-    public string Accent { get; set; } = "#7F77DD";
+    public string Accent { get; set; } = "#0A84FF";
 
     /// <summary>Active curated preset key (e.g. "mint", "peach") when a coordinated light/dark pair is used; null for custom choices.</summary>
     public string? PresetKey { get; set; }
@@ -61,7 +80,7 @@ public sealed class ThemeSettings
 public sealed class DonutSettings
 {
     /// <summary>Outer radius in logical pixels.</summary>
-    public double OuterRadius { get; set; } = 150;
+    public double OuterRadius { get; set; } = 170;
 
     /// <summary>Inner (hole) radius as a fraction of the outer radius (0.2 - 0.7).</summary>
     public double HoleRatio { get; set; } = 0.42;

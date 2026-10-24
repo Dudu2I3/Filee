@@ -1081,5 +1081,12 @@
   "whats_new.2_0_0.languages.title": "Filee speaks more languages",
   "whats_new.2_0_0.languages.text": "Spanish, Hindi, Japanese, Russian, Arabic and Brazilian Portuguese join English, Korean, Chinese and Polish.",
   "whats_new.2_0_0.more.title": "And a little more",
-  "whats_new.2_0_0.more.text": "Reset a single donut to its defaults, search your whole history, and convert Gujarati, Hindi or Arabic documents through LibreOffice."
+  "whats_new.2_0_0.more.text": "Reset a single donut to its defaults, search your whole history, and convert Gujarati, Hindi or Arabic documents through LibreOffice.",
+  "theme.donut_style": "Donut look",
+  "theme.donut_style.glass": "Liquid Glass",
+  "theme.donut_style.glass_hint": "One translucent ring with a blue active sector.",
+  "theme.donut_style.classic": "Classic",
+  "theme.donut_style.classic_hint": "Separate slices on the theme colour.",
+  "theme.native_glass": "System blur behind the glass (experimental)",
+  "theme.native_glass_hint": "Uses macOS's own blur. Off keeps a denser tint that is readable on any background. Reduce transparency in System Settings always uses the dense tint."
 }

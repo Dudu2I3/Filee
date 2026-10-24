@@ -29,7 +29,7 @@ public sealed partial class DonutMenu
     public const double SubRingSpace = SubGap + SubBand + 10;
 
     /// <summary>Width and height of a donut of <paramref name="outerRadius"/>, with room for group rings when asked.</summary>
-    public static double SideFor(double outerRadius, bool subRing) => 2 * (outerRadius + PopOut + 14 + (subRing ? SubRingSpace : 0));
+    public static double SideFor(double outerRadius, bool subRing) => 2 * (outerRadius + PopOut + EdgeMargin + (subRing ? SubRingSpace : 0));
 
     // Group slices: the one fanned out (-1 none), the one still drawn while its ring folds away, and the hovered
     // slice of the ring.
@@ -427,7 +427,7 @@ public sealed partial class DonutMenu
                 var item = children[k];
                 var mid = DonutGeometry.SubMidAngle(parentMid, k, children.Count, subSpan);
                 var wedge = CreateWedge(center, inner, outer, mid, subSpan);
-                context.DrawGeometry(WithOpacity(SliceBrush, SliceOpacity * (item.IsEnabled ? 1 : 0.55)), BorderPen(), wedge);
+                context.DrawGeometry(SliceFillBrush(SliceOpacity * (item.IsEnabled ? 1 : 0.55)), SliceEdgePen(), wedge);
                 var hot = k == subHover && expanded && item.IsEnabled;
                 if (hot)
                     context.DrawGeometry(WithOpacity(AccentBrush, 0.82), null, wedge);

@@ -550,10 +550,40 @@ public sealed class RadialController(
                 mac.AcceptFileDrags(handle);
                 _fileDragsAccepted = true;
             }
+            UpdateNativeGlass(window, handle);
         }
         _visible = true;
         if (activate)
             window.Activate();
+    }
+
+    /// <summary>
+    /// macOS, Liquid Glass with "System blur" on: puts the system's blur under the donut window and shapes it as the ring.
+    /// Without it (Reduce transparency, a failed attempt, the option off) the glass keeps its dense tint.
+    /// </summary>
+    private void UpdateNativeGlass(Avalonia.Controls.Window window, nint handle)
+    {
+        if (!OperatingSystem.IsMacOS() || platform is not Filee.Platform.MacOS.MacOSPlatformServices mac)
+            return;
+        var theme = store.Settings.Theme;
+        var wanted = theme.NativeGlass && theme.DonutStyle == DonutStyle.LiquidGlass && !mac.PrefersReducedTransparency;
+        if (!wanted)
+        {
+            mac.DetachGlass(handle);
+            DonutAppearance.SetNativeBlur(false);
+            return;
+        }
+        var width = window.Bounds.Width;
+        var height = window.Bounds.Height;
+        var outer = viewModel.OuterRadius;
+        var inner = outer * Math.Clamp(viewModel.HoleRatio, 0.2, 0.75);
+        if (width <= 0 || height <= 0 || !mac.AttachGlass(handle, width, height))
+        {
+            DonutAppearance.SetNativeBlur(false);
+            return;
+        }
+        mac.UpdateGlass(handle, width, height, inner, outer, inner * 0.86);
+        DonutAppearance.SetNativeBlur(true);
     }
 
     private static bool SameFiles(IReadOnlyList<string> a, IReadOnlyList<string> b) =>

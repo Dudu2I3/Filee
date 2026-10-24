@@ -12,7 +12,7 @@ namespace Filee.App.Services;
 internal static class SoftPalette
 {
     /// <summary>The default accent colour (the first swatch of the Theme page).</summary>
-    public const string DefaultAccent = "#7F77DD";
+    public const string DefaultAccent = "#0A84FF";
 
     /// <summary>The default corner radius (ThemeSettings.CornerRadius).</summary>
     public const double DefaultCornerRadius = 16;
@@ -107,8 +107,10 @@ internal static class SoftPalette
         res["SoftRadiusPill"] = new CornerRadius(Math.Round(r * 2.5));
     }
 
-    /// <summary>The UI font chain: Noto Sans (Latin, Cyrillic), then the system font.</summary>
-    public static string FontFamilies(string language) => $"{Latin}, Segoe UI, sans-serif";
+    /// <summary>The UI font chain: the system font on macOS, else Noto Sans (Latin, Cyrillic) and the system font.</summary>
+    public static string FontFamilies(string language) =>
+        // macOS: the system font (SF Pro), not the embedded Noto Sans.
+        OperatingSystem.IsMacOS() ? "$Default, sans-serif" : $"{Latin}, Segoe UI, sans-serif";
 
     /// <summary>
     /// The font chain from Windows' own UI fonts only (no embedded fonts), with the UI language's CJK font first: what

@@ -100,6 +100,7 @@ public sealed partial class DonutMenu : Control
     private static readonly Geometry PencilIcon = Geometry.Parse(
         "M3,17.25V21h3.75L17.81,9.94l-3.75-3.75L3,17.25z M20.71,7.04c0.39-0.39,0.39-1.02,0-1.41l-2.34-2.34c-0.39-0.39-1.02-0.39-1.41,0l-1.83,1.83l3.75,3.75L20.71,7.04z");
 
+    private readonly Action _appearanceChanged;
     private Spring[] _hover = [];
     private double[] _open = [];
     private Spring _centerPulse;
@@ -138,6 +139,7 @@ public sealed partial class DonutMenu : Control
 
     public DonutMenu()
     {
+        _appearanceChanged = () => Dispatcher.UIThread.Post(() => { InvalidateMeasure(); InvalidateVisual(); });
         // A circle reads the same either way: slices keep their clockwise order in Arabic too, their labels are
         // shaped right to left (TextDirection).
         FlowDirection = FlowDirection.LeftToRight;
@@ -819,7 +821,10 @@ public sealed partial class DonutMenu : Control
             return;
         }
 
-        RenderRing(context, center, r1, r2, n, typeface, typefaceRegular);
+        if (UsesGlass)
+            RenderGlassRing(context, center, r1, r2, n, typeface, typefaceRegular);
+        else
+            RenderRing(context, center, r1, r2, n, typeface, typefaceRegular);
 
         var reaching = _expanded >= 0 ? _expanded : _pendingGroup;
         if (!IsEditMode && reaching >= 0 && reaching < n && Items![reaching].Children is { Count: > 0 } reachable)
@@ -924,6 +929,11 @@ public sealed partial class DonutMenu : Control
 
     private void DrawSoftShadow(DrawingContext context, Point center, double r2)
     {
+        if (UsesGlass)
+        {
+            DrawGlassShadow(context, center, r2);
+            return;
+        }
         // A radial gradient ring fakes a soft drop shadow without blur effects (cheap on any GPU).
         var shadowRadius = r2 + 14;
         var brush = new RadialGradientBrush
@@ -944,17 +954,22 @@ public sealed partial class DonutMenu : Control
     private void DrawCenter(DrawingContext context, Point center, double r1, Typeface bold, Typeface regular)
     {
         var pulse = 1 + _centerPulse.Value * 0.06;
-        var radius = (r1 - 6) * pulse;
+        var glass = UsesGlass;
+        var radius = (glass ? r1 * 0.86 : r1 - 6) * pulse;
         var cancelHot = _externalCenterHot;
-        context.DrawEllipse(CenterBrush, BorderPen(), center, radius, radius);
+        if (glass)
+            DrawGlassHub(context, center, radius);
+        else
+            context.DrawEllipse(CenterBrush, BorderPen(), center, radius, radius);
         if (cancelHot)
             context.DrawEllipse(WithOpacity(DangerBrush, 0.18), null, center, radius, radius);
 
         var maxWidth = radius * 1.6;
-        var title = MakeText(CenterTitle ?? "", bold, 14, Foreground, maxWidth, maxLines: 2);
-        var subtitle = MakeText(CenterSubtitle ?? "", regular, 11.5, cancelHot ? DangerBrush : SecondaryForeground, maxWidth, maxLines: 2);
+        var title = MakeText(CenterTitle ?? "", bold, glass ? 15 : 14, glass ? GlassWhite : Foreground, maxWidth, maxLines: 2);
+        var subtitle = MakeText(CenterSubtitle ?? "", regular, glass ? 11 : 11.5,
+            cancelHot ? DangerBrush : glass ? GlassSecondary : SecondaryForeground, maxWidth, maxLines: 2);
         // "Tab ↻ back": small, under the rest, a little narrower (the hub is round).
-        var hint = string.IsNullOrEmpty(CenterHint) ? null : MakeText(CenterHint, regular, 10.5, SecondaryForeground, maxWidth * 0.85);
+        var hint = string.IsNullOrEmpty(CenterHint) ? null : MakeText(CenterHint, regular, 10.5, glass ? GlassSecondary : SecondaryForeground, maxWidth * 0.85);
         var total = title.Height + (string.IsNullOrEmpty(CenterSubtitle) ? 0 : subtitle.Height + 2) + (hint is null ? 0 : hint.Height + 5);
         var y = center.Y - total / 2;
         DrawCentered(context, title, center.X, y);
@@ -995,7 +1010,9 @@ public sealed partial class DonutMenu : Control
     private void DrawLabel(DrawingContext context, DonutItem item, Point center, double radius, double angle,
         double maxWidth, double maxHeight, Typeface bold, Typeface regular, bool hot)
     {
-        var foreground = hot ? OnAccentBrush : item.IsEnabled ? Foreground : SecondaryForeground;
+        var glass = UsesGlass;
+        var foreground = glass ? GlassLabelBrush(hot, item.IsEnabled)
+            : hot ? OnAccentBrush : item.IsEnabled ? Foreground : SecondaryForeground;
         var width = Math.Clamp(maxWidth, 30, 120);
         var text = KeepKoreanWords(item.Label);
         var label = MakeText(text, bold, LabelSize(text, bold, width), foreground, width, maxLines: 2);
@@ -1003,7 +1020,7 @@ public sealed partial class DonutMenu : Control
                           !string.Equals(item.Caption, item.Label, StringComparison.OrdinalIgnoreCase) &&
                           label.Height + 14 < maxHeight;
         var caption = showCaption
-            ? MakeCaption(item.Caption!, regular, hot ? OnAccentBrush : SecondaryForeground, width, label.Height, maxHeight)
+            ? MakeCaption(item.Caption!, regular, glass ? GlassCaptionBrush(hot, item.IsEnabled) : hot ? OnAccentBrush : SecondaryForeground, width, label.Height, maxHeight)
             : null;
 
         var total = label.Height + (caption?.Height ?? 0);
@@ -1024,7 +1041,7 @@ public sealed partial class DonutMenu : Control
 
     private const double LabelFontSize = 13;
     private const double MinLabelFontSize = 10;
-    private readonly Dictionary<(string Text, Typeface Typeface, double Width), double> _labelSizes = new();
+    private readonly Dictionary<(string Text, Typeface Typeface, double Width, double Base), double> _labelSizes = new();
 
     /// <summary>
     /// The size a slice's name is drawn at: 13, or smaller (down to 10) when one of its words is wider than the slice
@@ -1034,18 +1051,19 @@ public sealed partial class DonutMenu : Control
     internal double LabelSize(string text, Typeface typeface, double width)
     {
         var line = Math.Round(width);
-        var key = (text, typeface, line);
+        var baseSize = UsesGlass ? GlassLabelSize : LabelFontSize;
+        var key = (text, typeface, line, baseSize);
         if (_labelSizes.TryGetValue(key, out var size))
             return size;
         if (_labelSizes.Count >= MaxCachedWedges)
             _labelSizes.Clear();
         var widest = text.Split(' ', StringSplitOptions.RemoveEmptyEntries)
             .Where(word => !word.Any(IsHanOrKana))
-            .Select(word => new FormattedText(word, CultureInfo.CurrentUICulture, TextDirection, typeface, LabelFontSize, null).Width)
+            .Select(word => new FormattedText(word, CultureInfo.CurrentUICulture, TextDirection, typeface, baseSize, null).Width)
             .DefaultIfEmpty(0)
             .Max();
         // A pixel to spare: a word exactly as wide as the line still wraps.
-        size = widest < line ? LabelFontSize : Math.Max(MinLabelFontSize, LabelFontSize * (line - 1) / widest);
+        size = widest < line ? baseSize : Math.Max(MinLabelFontSize, baseSize * (line - 1) / widest);
         return _labelSizes[key] = size;
     }
 

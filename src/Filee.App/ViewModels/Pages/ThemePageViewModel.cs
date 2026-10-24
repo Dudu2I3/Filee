@@ -44,6 +44,8 @@ public sealed partial class ThemePageViewModel : ObservableObject, IDisposable
         }
         AccentHex = $"#{Accent.R:X2}{Accent.G:X2}{Accent.B:X2}";
         CornerRadius = theme.CornerRadius;
+        IsLiquidGlass = theme.DonutStyle == DonutStyle.LiquidGlass;
+        NativeGlass = theme.NativeGlass;
         DonutOpacity = Math.Round(Math.Clamp(store.Settings.Donut.Opacity, DonutSettings.MinOpacity, 1) * 100);
         ReduceMotion = theme.ReduceMotion ?? platform.PrefersReducedMotion;
         PreviewItems =
@@ -239,6 +241,22 @@ public sealed partial class ThemePageViewModel : ObservableObject, IDisposable
             Accent = Color.FromRgb(color.R, color.G, color.B);
         }
     }
+    /// <summary>The donut is drawn as Liquid Glass (else as classic slices).</summary>
+    [ObservableProperty] private bool _isLiquidGlass;
+
+    /// <summary>macOS: the system blurs what is behind the glass (experimental).</summary>
+    [ObservableProperty] private bool _nativeGlass;
+
+    /// <summary>The native blur is a macOS thing: the switch is shown there only.</summary>
+    public bool CanUseNativeGlass => OperatingSystem.IsMacOS();
+
+    [RelayCommand]
+    private void SetDonutStyle(DonutStyle target) => IsLiquidGlass = target == DonutStyle.LiquidGlass;
+
+    partial void OnIsLiquidGlassChanged(bool value) => Save(t => t.DonutStyle = value ? DonutStyle.LiquidGlass : DonutStyle.Classic);
+
+    partial void OnNativeGlassChanged(bool value) => Save(t => t.NativeGlass = value);
+
     partial void OnCornerRadiusChanged(double value) => Save(t => t.CornerRadius = Math.Round(value));
     partial void OnReduceMotionChanged(bool value) => Save(t => t.ReduceMotion = value);
 

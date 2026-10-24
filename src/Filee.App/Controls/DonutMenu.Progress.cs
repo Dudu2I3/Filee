@@ -289,7 +289,7 @@ public sealed partial class DonutMenu
                 using (context.PushOpacity(1 - c))
                 {
                     var wedge = CreateWedge(center, r1, r2, i, n);
-                    context.DrawGeometry(WithOpacity(SliceBrush, SliceOpacity), BorderPen(), wedge);
+                    context.DrawGeometry(SliceFillBrush(SliceOpacity), SliceEdgePen(), wedge);
                     var hot = i == ActiveIndex;
                     if (hot)
                         context.DrawGeometry(WithOpacity(AccentBrush, 0.8), null, wedge);
@@ -302,7 +302,7 @@ public sealed partial class DonutMenu
             // The hole shrinks to the size of the ring's plate.
             var plate = RingRadius + RingStroke + 2;
             var holeRadius = Lerp(r1 - 6, plate, EaseInCubic(collapseAll));
-            context.DrawEllipse(CenterBrush, BorderPen(), center, holeRadius, holeRadius);
+            context.DrawEllipse(HubFillBrush(), SliceEdgePen(), center, holeRadius, holeRadius);
             return;
         }
 
@@ -321,7 +321,7 @@ public sealed partial class DonutMenu
 
         var plateRadius = RingRadius + RingStroke + 2;
         DrawPlateShadow(context, center, plateRadius);
-        context.DrawEllipse(CenterBrush, BorderPen(), center, plateRadius, plateRadius);
+        context.DrawEllipse(HubFillBrush(), SliceEdgePen(), center, plateRadius, plateRadius);
         context.DrawEllipse(null, new Pen(WithOpacity(SecondaryForeground, 0.22), RingStroke), center, RingRadius, RingRadius);
 
         var arcBrush = _outcome switch

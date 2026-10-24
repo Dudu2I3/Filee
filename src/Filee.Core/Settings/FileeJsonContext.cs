@@ -16,6 +16,7 @@ namespace Filee.Core.Settings;
     AllowTrailingCommas = true)]
 [JsonSerializable(typeof(AppSettings))]
 [JsonSerializable(typeof(ThemeStyle))]
+[JsonSerializable(typeof(DonutStyle))]
 [JsonSerializable(typeof(List<Preset>))]
 [JsonSerializable(typeof(List<ToolbarProfile>))]
 [JsonSerializable(typeof(PresetBundle))]

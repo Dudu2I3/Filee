@@ -131,6 +131,32 @@ public sealed class MacOSPlatformServices : IPlatformServices
             NativeMethods.AddDraggedTypes(windowHandle, PasteboardPaths.DragTypes);
     }
 
+    /// <summary>"Reduce transparency" is on: the glass donut keeps its dense tint and shows no blur.</summary>
+    public bool PrefersReducedTransparency => Guarded(MacOSGlass.PrefersReducedTransparency, false);
+
+    /// <summary>Puts a system blur under the donut window (see <see cref="MacOSGlass"/>). False when it could not.</summary>
+    public bool AttachGlass(nint windowHandle, double width, double height) =>
+        Guarded(() => MacOSGlass.Attach(windowHandle, width, height), false);
+
+    /// <summary>Shapes the blur as the donut: the ring between the radii and a disc under the hub.</summary>
+    public void UpdateGlass(nint windowHandle, double width, double height, double inner, double outer, double hub) =>
+        Guarded(() => { MacOSGlass.Update(windowHandle, width, height, inner, outer, hub); return true; }, false);
+
+    public void DetachGlass(nint windowHandle) =>
+        Guarded(() => { MacOSGlass.Detach(windowHandle); return true; }, false);
+
+    private static T Guarded<T>(Func<T> action, T fallback)
+    {
+        try
+        {
+            return action();
+        }
+        catch (Exception ex) when (ex is DllNotFoundException or EntryPointNotFoundException or InvalidOperationException or System.Runtime.InteropServices.MarshalDirectiveException)
+        {
+            return fallback;
+        }
+    }
+
     internal static IReadOnlyList<string> ParseSelection(string json) =>
         JsonSerializer.Deserialize<string[]>(json) ?? [];
 
