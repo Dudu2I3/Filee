@@ -69,3 +69,17 @@ public class LiteTrimTests
         Assert.True(FormatRegistry.FindById(preset.TargetFormat) is not null, $"preset '{preset.Id}' targets unlisted '{preset.TargetFormat}'");
     }
 }
+
+public class LiteIdentityTests
+{
+    [Fact]
+    public void Update_checks_are_off_by_default() => Assert.False(new Filee.Core.Settings.AppSettings().CheckForUpdates);
+
+    [Fact]
+    public void The_default_engine_priority_names_only_registered_engines()
+    {
+        var known = new HashSet<string>(["magick", "pdfium", "pdfsharp", "rhwp", "markdown", "document-markdown", "spreadsheet", "ooxml",
+            "hwpx-writer", "docx-writer", "pdf-text", "pdf-slides", "pdf-tables", "vector", "archive", "ffmpeg", "vision", "libreoffice"]);
+        Assert.All(new Filee.Core.Settings.AppSettings().EnginePriority, id => Assert.Contains(id, known));
+    }
+}

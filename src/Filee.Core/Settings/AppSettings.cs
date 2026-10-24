@@ -135,7 +135,8 @@ public sealed class AppSettings
     /// <summary>Show the Explorer "Convert with Filee" context menu entry.</summary>
     public bool ContextMenuEnabled { get; set; } = true;
 
-    public bool CheckForUpdates { get; set; } = true;
+    /// <summary>Filee Lite never looks for updates by itself; the fork has no updater feed.</summary>
+    public bool CheckForUpdates { get; set; }
 
     /// <summary>What closing the main window does. A value from a newer Filee reads as <see cref="CloseAction.Ask"/>.</summary>
     [JsonConverter(typeof(LenientEnumJsonConverter<CloseAction>))]

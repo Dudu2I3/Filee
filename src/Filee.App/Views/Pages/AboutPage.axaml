@@ -14,6 +14,7 @@
           <TextBlock Text="Filee" FontSize="24" FontWeight="Bold" />
           <TextBlock Classes="muted" Text="{Binding Version}" />
           <TextBlock Classes="muted" Text="{DynamicResource about.license}" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" Text="{DynamicResource about.lite}" />
           <Button Classes="ghost" Padding="0" Click="OnOpenRepository" Margin="0,4,0,0">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <PathIcon Width="13" Height="13" Data="{StaticResource Icon.Link}" Foreground="{DynamicResource AccentBrush}" />
