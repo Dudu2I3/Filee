@@ -18,7 +18,11 @@ public sealed class TrayService(UserDataStore store, ILocalizer loc, IPlatformSe
 
     public void Create(Application app)
     {
-        using var iconStream = AssetLoader.Open(new Uri("avares://Filee/Assets/Icons/filee.ico"));
+        // macOS: a one-colour template image, which the system paints white on a dark menu bar and black on a light one.
+        var macOS = OperatingSystem.IsMacOS();
+        using var iconStream = AssetLoader.Open(new Uri(macOS
+            ? "avares://Filee/Assets/Icons/tray-template.png"
+            : "avares://Filee/Assets/Icons/filee.ico"));
         _open = new NativeMenuItem();
         _open.Click += (_, _) => windows.ShowMain();
         _pause = new NativeMenuItem();
@@ -40,6 +44,8 @@ public sealed class TrayService(UserDataStore store, ILocalizer loc, IPlatformSe
             Menu = new NativeMenu { Items = { _open, _pause, new NativeMenuItemSeparator(), _quit } },
             IsVisible = platform.SupportsDockVisibility ? store.Settings.ShowMenuBarIcon : true,
         };
+        if (macOS)
+            MacOSProperties.SetIsTemplateIcon(_tray, true);
         _tray.Clicked += (_, _) => windows.ShowMain();
         TrayIcon.SetIcons(app, [_tray]);
 
