@@ -96,9 +96,9 @@ public class JobQueueTests
         using var dir = new TempDir();
         var arabic = dir.File("arabic.docx");
         var english = dir.File("english.docx");
-        var writer = new FakeConverter("hwpx-writer", new ConversionEdge("docx", "hwpx"));
+        var writer = new FakeConverter("hwpx-writer", new ConversionEdge("docx", "rtf"));
         var rhwp = new ShapingCheck("rhwp", path => Path.GetFileName(path).StartsWith("arabic", StringComparison.Ordinal) ? "Arabic" : null,
-            new ConversionEdge("hwpx", "pdf", Unshaped: true));
+            new ConversionEdge("rtf", "pdf", Unshaped: true));
         var office = new FakeConverter("libreoffice", new ConversionEdge("docx", "pdf", 25));
         var preset = new Preset { TargetFormat = "pdf" };
 
@@ -160,8 +160,8 @@ public class JobQueueTests
         using var dir = new TempDir();
         var russian = dir.File("russian.docx");
         var english = dir.File("english.docx");
-        var writer = new FakeConverter("hwpx-writer", new ConversionEdge("docx", "hwpx"));
-        var rhwp = new ShapingCheck("rhwp", _ => null, new ConversionEdge("hwpx", "pdf", Unshaped: true))
+        var writer = new FakeConverter("hwpx-writer", new ConversionEdge("docx", "rtf"));
+        var rhwp = new ShapingCheck("rhwp", _ => null, new ConversionEdge("rtf", "pdf", Unshaped: true))
         {
             WithoutWidths = path => Path.GetFileName(path).StartsWith("russian", StringComparison.Ordinal) ? "Cyrillic" : null,
         };
@@ -194,8 +194,8 @@ public class JobQueueTests
         // never converted through the widths escape (a route kept only because the overlap stays readable).
         using var dir = new TempDir();
         var arabic = dir.File("arabic.docx");
-        var writer = new FakeConverter("hwpx-writer", new ConversionEdge("docx", "hwpx"));
-        var rhwp = new ShapingCheck("rhwp", _ => "Arabic", new ConversionEdge("hwpx", "pdf", Unshaped: true))
+        var writer = new FakeConverter("hwpx-writer", new ConversionEdge("docx", "rtf"));
+        var rhwp = new ShapingCheck("rhwp", _ => "Arabic", new ConversionEdge("rtf", "pdf", Unshaped: true))
         {
             WithoutWidths = _ => "Cyrillic",
         };
@@ -215,9 +215,9 @@ public class JobQueueTests
     {
         using var dir = new TempDir();
         var pdf = dir.File("doc.pdf");
-        var eps = dir.File("art.eps");
+        var eps = dir.File("art.svg");
         var turner = new FakeTurner("magick", new ConversionEdge("png", "jpg"));
-        var renderer = new FakeTurner("ghostscript", new ConversionEdge("eps", "png"));
+        var renderer = new FakeTurner("vector", new ConversionEdge("svg", "png"));
         await using var queue = new JobQueue(new ConverterCatalog(
             [new FakeConverter("pdfsharp", new ConversionEdge("pdf", "pdf")), turner, renderer]));
 
@@ -227,7 +227,7 @@ public class JobQueueTests
         Assert.Equal("error.cannot_turn", copied.Files.Single().ErrorKey);
         Assert.False(File.Exists(Path.Combine(dir.Path, "doc (1).pdf")));
 
-        // EPS → PNG → JPG: both engines turn images, only the first one is asked to (not 90° twice = 180°).
+        // SVG → PNG → JPG: both engines turn images, only the first one is asked to (not 90° twice = 180°).
         var turned = await Run(queue, [eps], new Preset { TargetFormat = "jpg", Image = { Rotation = ImageRotation.Left90 } });
         Assert.Equal(JobState.Completed, turned.State);
         Assert.Equal([("png", ImageRotation.Left90)], renderer.Asked);
@@ -241,11 +241,11 @@ public class JobQueueTests
     [Fact]
     public async Task A_step_before_the_turning_one_gets_the_preset_without_rotation()
     {
-        // STL → PNG (an engine that renders with the image options but doesn't say it turns) → HEIC (one that turns):
+        // DOCX → PNG (an engine that renders with the image options but doesn't say it turns) → HEIC (one that turns):
         // only the HEIC step turns, or the picture would be turned twice.
         using var dir = new TempDir();
-        var model = dir.File("part.stl");
-        var renderer = new FakeRecorder("model3d", new ConversionEdge("stl", "png"));
+        var model = dir.File("part.docx");
+        var renderer = new FakeRecorder("render", new ConversionEdge("docx", "png"));
         var heic = new FakeTurner("ffmpeg", new ConversionEdge("png", "heic"));
         await using var queue = new JobQueue(new ConverterCatalog([renderer, heic]));
 
@@ -355,9 +355,9 @@ public class JobQueueTests
     public async Task Multi_step_route_keeps_intermediates_out_of_the_output_folder()
     {
         using var dir = new TempDir();
-        var source = dir.File("doc.hwpx");
+        var source = dir.File("doc.rtf");
         var catalog = new ConverterCatalog([
-            new FakeConverter("rhwp", new ConversionEdge("hwpx", "pdf")),
+            new FakeConverter("rhwp", new ConversionEdge("rtf", "pdf")),
             new FakeConverter("pdfium", new ConversionEdge("pdf", "png")) { OutputsPerInput = 2 },
         ]);
         await using var queue = new JobQueue(catalog);
@@ -365,7 +365,7 @@ public class JobQueueTests
         var job = await Run(queue, [source], new Preset { TargetFormat = "png" });
 
         Assert.Equal(JobState.Completed, job.State);
-        Assert.Equal(["doc.hwpx", "doc_p1.png", "doc_p2.png"], Directory.GetFiles(dir.Path).Select(Path.GetFileName).Order(StringComparer.Ordinal));
+        Assert.Equal(["doc.rtf", "doc_p1.png", "doc_p2.png"], Directory.GetFiles(dir.Path).Select(Path.GetFileName).Order(StringComparer.Ordinal));
     }
 
     [Fact]
@@ -453,7 +453,7 @@ public class JobQueueTests
         using var dir = new TempDir();
         await using var queue = new JobQueue(new ConverterCatalog([]));
 
-        var job = await Run(queue, [dir.File("a.docx")], new Preset { TargetFormat = "hwpx" });
+        var job = await Run(queue, [dir.File("a.docx")], new Preset { TargetFormat = "rtf" });
 
         Assert.Equal(JobState.Failed, job.State);
         Assert.Equal("error.no_route", job.Files[0].ErrorKey);

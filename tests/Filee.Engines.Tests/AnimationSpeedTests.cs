@@ -78,28 +78,6 @@ public class AnimationSpeedTests(EngineFixture fx) : IClassFixture<EngineFixture
     }
 
     [Fact]
-    public async Task Webp_and_apng_get_the_speed_in_milliseconds()
-    {
-        var dir = fx.NewFolder();
-        var gif = MakeGif(dir, [10, 20, 30, 40]);
-
-        // 1.5×: 66.7, 133.3, 200, 266.7 ms, rounded on the running total so the animation lasts 667 ms.
-        var webp = await fx.ConvertAsync([gif], Speed("webp", 1.5));
-        AssertDone(webp);
-        Assert.Equal([67, 133, 200, 267], WebpDurations(webp.Outputs.Single()));
-
-        // 0.75×: 133.3, 266.7, 400, 533.3 ms.
-        var apng = await fx.ConvertAsync([gif], Speed("apng", 0.75));
-        AssertDone(apng);
-        var chunks = ApngBuilder.Chunks(File.ReadAllBytes(apng.Outputs.Single()));
-        var delays = chunks.Where(c => c.Type == "fcTL")
-            .Select(c => (BinaryPrimitives.ReadUInt16BigEndian(c.Data.AsSpan(20)), BinaryPrimitives.ReadUInt16BigEndian(c.Data.AsSpan(22))))
-            .ToList();
-        Assert.Equal([((ushort)133, (ushort)1000), ((ushort)267, (ushort)1000), ((ushort)400, (ushort)1000), ((ushort)533, (ushort)1000)], delays);
-        Assert.Equal(3u, BinaryPrimitives.ReadUInt32BigEndian(chunks.Single(c => c.Type == "acTL").Data.AsSpan(4)));
-    }
-
-    [Fact]
     public async Task Sped_up_frames_shorter_than_players_show_are_dropped_evenly()
     {
         var dir = fx.NewFolder();

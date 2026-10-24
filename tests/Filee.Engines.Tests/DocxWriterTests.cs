@@ -15,7 +15,7 @@ namespace Filee.Engines.Tests;
 
 public class DocxWriterTests(EngineFixture fx) : IClassFixture<EngineFixture>
 {
-    private static readonly string[] OptionalEngines = ["pandoc", "libreoffice"];
+    private static readonly string[] OptionalEngines = ["libreoffice"];
 
     private RoutePlanner BuiltInPlanner() =>
         new ConverterCatalog(fx.Converters.Where(c => !OptionalEngines.Contains(c.Id))) { Priority = fx.Catalog.Priority }.CreatePlanner();
@@ -30,10 +30,9 @@ public class DocxWriterTests(EngineFixture fx) : IClassFixture<EngineFixture>
     [Fact]
     public void Built_in_writer_is_preferred_for_docx()
     {
-        var planner = fx.Catalog.CreatePlanner(["pandoc", "libreoffice"]);
+        var planner = fx.Catalog.CreatePlanner(["libreoffice"]);
         foreach (var from in new[] { "md", "txt", "xlsx", "csv", "pptx", "pdf" })
             Assert.Equal("docx-writer", Assert.Single(planner.Plan(from, "docx")!.Steps).Converter.Id);
-        Assert.Equal("ooxml", Assert.Single(planner.Plan("docm", "docx")!.Steps).Converter.Id);
         Assert.DoesNotContain(fx.Converters.Single(c => c.Id == "docx-writer").Edges, e => e.From == "docx");
         // No optional engine needed.
         Assert.Equal("docx-writer", Assert.Single(BuiltInPlanner().Plan("md", "docx")!.Steps).Converter.Id);

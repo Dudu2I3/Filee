@@ -169,7 +169,6 @@ public class DocumentEngineTests(EngineFixture fx) : IClassFixture<EngineFixture
     [InlineData("매출.xlsx", true)]
     [InlineData("data.CSV", true)]
     [InlineData("old.xls", true)]
-    [InlineData("calc.ods", true)]
     [InlineData("report.docx", false)]
     [InlineData("form.hwpx", false)]
     [InlineData("form.hwp", false)]

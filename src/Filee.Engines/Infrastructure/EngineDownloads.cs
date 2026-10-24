@@ -34,17 +34,12 @@ public static class EngineDownloads
         ComponentsForRuntime(RuntimeIdentifier, OperatingSystem.IsMacOS() ? Environment.OSVersion.Version : null);
 
     /// <summary>
-    /// Packages offered in Settings → Engines and on first run. rhwp and 7-Zip are not listed: they are small and bundled.
+    /// Packages offered in Settings → Engines and on first run. 7-Zip is not listed: it is small and bundled.
     /// </summary>
     public static IReadOnlyList<EnginePackage> Packages { get; } =
     [
-        new("libreoffice", OperatingSystem.IsWindows() ? ["libreoffice", "h2orestart", "jre"] : ["libreoffice"], 1_265_000_000, ["libreoffice"]),
-        new("pandoc", ["pandoc"], 236_000_000, ["pandoc"]),
-        // Ghostscript from conda-forge plus the Microsoft C++ runtime it was built against (copied next to it).
-        new("ghostscript", OperatingSystem.IsWindows() ? ["ghostscript", "vcruntime"] : ["ghostscript"], 31_000_000, ["ghostscript"]),
+        new("libreoffice", ["libreoffice"], 1_265_000_000, ["libreoffice"]),
         new("ffmpeg", ["ffmpeg"], 272_000_000, ["ffmpeg"]),
-        new("calibre", ["calibre"], 663_000_000, ["calibre"]),
-        new("tesseract", ["tesseract"], 168_000_000, ["tesseract"]),
     ];
 
     /// <summary>Total download size of a package in bytes.</summary>
@@ -60,17 +55,12 @@ public static class EngineDownloads
             return package.Id switch
             {
                 "ffmpeg" => "Install FFmpeg with Homebrew (brew install ffmpeg), then check again or select its bin folder.",
-                "ghostscript" => "Install Ghostscript with Homebrew (brew install ghostscript), then check again or select its bin folder.",
-                "tesseract" => "Install Tesseract with Homebrew (brew install tesseract), then check again or select its bin folder.",
-                "calibre" => "The calibre Filee downloads needs macOS 14 or later. Install calibre 7.26 from calibre-ebook.com and select its .app folder.",
                 _ => $"No Filee download is available for {RuntimeIdentifier}. Install {package.Id} for this Mac and select its program or .app folder.",
             };
         if (OperatingSystem.IsLinux())
             return package.Id switch
             {
-                "libreoffice" => "Install LibreOffice using your distribution's package manager (Ubuntu/Debian: sudo apt install libreoffice), then check again. HWP import through LibreOffice also needs Java and the H2Orestart extension.",
-                "ghostscript" => "Install Ghostscript using your distribution's package manager (Ubuntu/Debian: sudo apt install ghostscript), then check again.",
-                "tesseract" => "Install Tesseract using your distribution's package manager (Ubuntu/Debian: sudo apt install tesseract-ocr), then check again.",
+                "libreoffice" => "Install LibreOffice using your distribution's package manager (Ubuntu/Debian: sudo apt install libreoffice), then check again.",
                 _ => $"No Filee download is available for {RuntimeIdentifier}. Install {package.Id} using your distribution's package manager and select its program folder.",
             };
         return $"No Filee download is available for {RuntimeIdentifier}. Select a compatible installed copy.";
@@ -81,12 +71,10 @@ public static class EngineDownloads
 
     /// <summary>
     /// Ticked by default in the installer and in the first-run choice. Large downloads are offered, not suggested:
-    /// LibreOffice is only needed for older formats (DOC, XLS, PPT, OpenDocument), FFmpeg (~100 MB) only for video and
-    /// audio, calibre (~230 MB) only for rare e-book formats and Kindle output. Ghostscript and Tesseract are small but
-    /// only needed for EPS / PostScript and for scans.
+    /// LibreOffice is only needed for older formats (DOC, XLS, PPT, ODT), FFmpeg (~100 MB) only for video and audio.
     /// </summary>
     public static bool IsSuggested(EnginePackage package) =>
-        CanDownload(package) && DownloadSize(package) < SuggestLimit && package.Id is not ("ghostscript" or "tesseract");
+        CanDownload(package) && DownloadSize(package) < SuggestLimit;
 
     /// <param name="macOSVersion">The running macOS; downloads whose minimumMacOS is newer are left out. Null keeps all.</param>
     public static IReadOnlyDictionary<string, EngineComponent> ComponentsForRuntime(string runtimeIdentifier, Version? macOSVersion = null)

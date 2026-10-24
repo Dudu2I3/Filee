@@ -1,5 +1,7 @@
 // Holds every registered converter, caches their availability and builds route planners.
 
+using Filee.Core.Formats;
+
 namespace Filee.Core.Conversion;
 
 /// <summary>Registry of all converters plus the user's engine priority.</summary>
@@ -82,14 +84,25 @@ public sealed class ConverterCatalog
 
     /// <summary>Creates a planner over the currently available converters.</summary>
     public RoutePlanner CreatePlanner() =>
-        new(_all.Where(c => StatusOf(c).IsAvailable), c => Math.Min(PriorityIndex(c), 9));
+        new(_all.Where(c => StatusOf(c).IsAvailable), c => Math.Min(PriorityIndex(c), 9), IsSupportedEdge);
 
     /// <summary>
     /// Creates a planner that also treats the engines in <paramref name="assumeInstalled"/> as available, to tell
     /// which conversions an optional engine download would enable.
     /// </summary>
     public RoutePlanner CreatePlanner(IReadOnlyCollection<string> assumeInstalled) =>
-        new(_all.Where(c => StatusOf(c).IsAvailable || assumeInstalled.Contains(c.Id)), c => Math.Min(PriorityIndex(c), 9));
+        new(_all.Where(c => StatusOf(c).IsAvailable || assumeInstalled.Contains(c.Id)), c => Math.Min(PriorityIndex(c), 9), IsSupportedEdge);
+
+    /// <summary>
+    /// Whether the source and target formats of <paramref name="edge"/> are both in the <see cref="FormatRegistry"/>. A
+    /// trimmed build lists fewer formats than the engines can convert, and an edge to an unlisted format would throw as
+    /// soon as a route or a preset looked its format up.
+    /// </summary>
+    public static bool IsSupportedEdge(ConversionEdge edge) =>
+        FormatRegistry.FindById(edge.From) is not null && FormatRegistry.FindById(edge.To) is not null;
+
+    /// <summary>The edges of <paramref name="converter"/> that <see cref="IsSupportedEdge"/> accepts.</summary>
+    public static IEnumerable<ConversionEdge> SupportedEdges(IConverter converter) => converter.Edges.Where(IsSupportedEdge);
 
     private int PriorityIndex(IConverter c)
     {

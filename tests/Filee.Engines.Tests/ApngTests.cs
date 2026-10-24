@@ -33,69 +33,6 @@ public class ApngTests(EngineFixture fx) : IClassFixture<EngineFixture>
     private static IMagickColor<byte> Pixel(IMagickImage<byte> image, int x, int y) => image.GetPixels().GetPixel(x, y).ToColor()!;
 
     [Fact]
-    public async Task Animated_gif_becomes_an_apng_and_back()
-    {
-        var dir = fx.NewFolder();
-        var toApng = await fx.ConvertAsync([MakeAnimatedGif(dir)], new Preset { TargetFormat = "apng" });
-
-        AssertDone(toApng);
-        var apng = toApng.Outputs.Single();
-        Assert.Equal(".apng", Path.GetExtension(apng));
-        var chunks = ApngBuilder.Chunks(File.ReadAllBytes(apng));
-        Assert.Equal(["IHDR", "acTL"], chunks.Select(c => c.Type).Where(t => t is "IHDR" or "acTL"));
-        Assert.Equal(3u, BinaryPrimitives.ReadUInt32BigEndian(chunks.Single(c => c.Type == "acTL").Data));
-        Assert.Equal(3, chunks.Count(c => c.Type == "fcTL"));
-        Assert.True(chunks.FindIndex(c => c.Type == "fcTL") < chunks.FindIndex(c => c.Type == "IDAT"), "the default image is the first frame");
-        // A viewer without APNG support shows the first frame.
-        using (var still = new MagickImage(apng, new MagickReadSettings { Format = MagickFormat.Png }))
-            Assert.True(Pixel(still, 32, 24).R > 200, "first frame is red");
-
-        var back = await fx.ConvertAsync([apng], new Preset { TargetFormat = "gif", Output = { FileNamePattern = "{name}_back" } });
-
-        AssertDone(back);
-        using var gif = new MagickImageCollection(back.Outputs.Single());
-        Assert.Equal(3, gif.Count);
-        Assert.Equal([20u, 30u, 40u], gif.Select(f => f.AnimationDelay));
-        Assert.True(Pixel(gif[1], 32, 24).G > 200, "second frame is green");
-        Assert.True(Pixel(gif[2], 32, 24).B > 200, "third frame is blue");
-    }
-
-    [Fact]
-    public async Task Apng_becomes_an_animated_webp_and_a_still_picture()
-    {
-        var dir = fx.NewFolder();
-        var apng = (await fx.ConvertAsync([MakeAnimatedGif(dir)], new Preset { TargetFormat = "apng" })).Outputs.Single();
-
-        var webp = await fx.ConvertAsync([apng], new Preset { TargetFormat = "webp", Image = { WebpLossless = true } });
-        var jpg = await fx.ConvertAsync([apng], new Preset { TargetFormat = "jpg" });
-
-        AssertDone(webp);
-        using (var frames = new MagickImageCollection(webp.Outputs.Single()))
-        {
-            Assert.Equal(3, frames.Count);
-            Assert.Equal([20u, 30u, 40u], frames.Select(f => f.AnimationDelay));
-        }
-        AssertDone(jpg);
-        using var first = new MagickImage(jpg.Outputs.Single());
-        Assert.True(Pixel(first, 32, 24).R > 200, "a still format takes the first frame");
-    }
-
-    [Fact]
-    public async Task An_animated_png_saved_as_png_stays_animated()
-    {
-        var dir = fx.NewFolder();
-        var apng = (await fx.ConvertAsync([MakeAnimatedGif(dir)], new Preset { TargetFormat = "apng" })).Outputs.Single();
-        var png = Path.Combine(dir, "sticker.png");
-        File.Copy(apng, png);
-
-        var job = await fx.ConvertAsync([png], new Preset { TargetFormat = "gif" });
-
-        AssertDone(job);
-        using var gif = new MagickImageCollection(job.Outputs.Single());
-        Assert.Equal(3, gif.Count);
-    }
-
-    [Fact]
     public void Frames_are_composed_with_their_dispose_and_blend_operations()
     {
         var dir = fx.NewFolder();

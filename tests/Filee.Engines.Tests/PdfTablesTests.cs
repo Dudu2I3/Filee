@@ -104,36 +104,6 @@ public class PdfTablesTests(EngineFixture fx) : IClassFixture<EngineFixture>
     }
 
     [Fact]
-    public void Only_a_pdf_reaches_a_spreadsheet_through_its_tables()
-    {
-        var planner = fx.Catalog.CreatePlanner();
-        // A picture made into a PDF has no ruled tables: no image → spreadsheet route through PDF, even with every
-        // optional engine installed.
-        var everything = fx.Catalog.CreatePlanner([.. fx.Catalog.All.Select(c => c.Id)]);
-        foreach (var image in new[] { "jpg", "png", "webp", "heic", "psd", "tiff" })
-            foreach (var target in new[] { "xlsx", "ods", "csv", "json" })
-                Assert.Null(everything.Plan(image, target));
-        foreach (var target in new[] { "xlsx", "ods", "csv" })
-            Assert.Equal("pdf-tables", Assert.Single(planner.Plan("pdf", target)!.Steps).Converter.Id);
-    }
-
-    [Fact]
-    public async Task Csv_and_ods_are_written_from_the_same_tables()
-    {
-        var pdf = new PdfBuilder().NewPage();
-        Table(pdf, 60, [50, 250, 545], [["Name", "Size"], ["a.pdf", "1,234"]]);
-        var path = pdf.Save(Path.Combine(fx.NewFolder(), "one.pdf"));
-
-        var csv = await fx.ConvertAsync([path], new Preset { TargetFormat = "csv" });
-        var ods = await fx.ConvertAsync([path], new Preset { TargetFormat = "ods" });
-
-        Assert.Equal(JobState.Completed, csv.State);
-        Assert.Contains("a.pdf", await File.ReadAllTextAsync(csv.Outputs.Single(), TestContext.Current.CancellationToken));
-        Assert.Equal(JobState.Completed, ods.State);
-        Assert.EndsWith(".ods", ods.Outputs.Single());
-    }
-
-    [Fact]
     public async Task A_pdf_without_tables_fails_with_a_message()
     {
         var pdf = new PdfBuilder().NewPage();

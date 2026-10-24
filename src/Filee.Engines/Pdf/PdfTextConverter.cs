@@ -88,7 +88,8 @@ public sealed class PdfTextConverter : IConverter
         return [output];
     }
 
-    private static void NotBold(List<HInline> inlines)
+    /// <summary>Drops bold from runs: a heading is bold by nature (no "# **Title**").</summary>
+    internal static void NotBold(List<HInline> inlines)
     {
         for (var i = 0; i < inlines.Count; i++)
         {

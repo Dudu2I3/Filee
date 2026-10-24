@@ -193,9 +193,8 @@ public sealed class AppSettings
     /// <summary>Engine ids in preferred order (see <see cref="Conversion.ConverterCatalog.Priority"/>).</summary>
     public List<string> EnginePriority { get; set; } =
     [
-        "magick", "pdfium", "pdfsharp", "rhwp", "unhwp", "markdown", "spreadsheet", "ooxml", "hwpx-writer", "docx-writer",
-        "pdf-text", "pdf-slides", "email", "data", "vector", "icns", "font", "cad", "model3d", "geo", "archive", "ebook",
-        "subtitle", "wic", "ffmpeg", "pandoc", "ghostscript", "calibre", "libreoffice",
+        "magick", "pdfium", "pdfsharp", "rhwp", "markdown", "document-markdown", "spreadsheet", "ooxml", "hwpx-writer", "docx-writer",
+        "pdf-text", "pdf-slides", "vector", "archive", "ffmpeg", "libreoffice",
     ];
 
     /// <summary>Set once the first-run welcome has been shown.</summary>

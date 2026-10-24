@@ -480,11 +480,7 @@ internal static class SettingsMigrations
         //     HWPX), PDF → Markdown / EPUB (through DOCX), Word → PNG, HWP → JPG / EPUB (through PDF / DOCX).
         if (from < 7)
         {
-            foreach (var preset in BuiltInData.HwpPresets().Where(p => presets.All(existing => existing.Id != p.Id)))
-            {
-                presets.Add(preset);
-                changed = true;
-            }
+            // Filee Lite has no HWP target preset to add here.
             foreach (var (profile, preset, after) in Version7Offers)
                 changed |= Offer(presets, profiles, profile, preset, after);
         }
@@ -528,12 +524,7 @@ internal static class SettingsMigrations
         //      another donut already has them, and the e-books donut gets KEPUB after MOBI.
         if (from < 11)
         {
-            if (presets.All(p => p.Id != "to-kepub"))
-            {
-                presets.Add(BuiltInData.CreatePresets().Single(p => p.Id == "to-kepub"));
-                changed = true;
-                changed |= Offer(presets, profiles, "ebooks", "to-kepub", "to-mobi");
-            }
+            // Filee Lite has no KEPUB preset (no e-books donut either): nothing to add.
             changed |= LearnExtensions(profiles, out _);
         }
 
@@ -875,27 +866,8 @@ internal static class SettingsMigrations
         return changed;
     }
 
-    private static bool AddCalendarPreset(List<Preset> presets, List<ToolbarProfile> profiles)
-    {
-        var changed = false;
-        if (presets.All(p => p.Id != "to-ics"))
-        {
-            var preset = BuiltInData.DataPresets().Single(p => p.Id == "to-ics");
-            var after = presets.FindIndex(p => p.Id == "to-vcf");
-            presets.Insert(after < 0 ? presets.Count : after + 1, preset);
-            changed = true;
-        }
-
-        if (profiles.FirstOrDefault(p => p.Id == "spreadsheets") is { BackPresetIds: { } back }
-            && !back.Contains("to-ics") && back.Count < ToolbarProfile.MaxSlices)
-        {
-            var after = back.IndexOf("to-vcf");
-            var beforeZip = back.IndexOf("zip-all");
-            back.Insert(after >= 0 ? after + 1 : beforeZip >= 0 ? beforeZip : back.Count, "to-ics");
-            changed = true;
-        }
-        return changed;
-    }
+    private static bool AddCalendarPreset(List<Preset> presets, List<ToolbarProfile> profiles) =>
+        false; // No-op in Filee Lite: the iCalendar formats are not part of this build.
 
     /// <summary>Where schema 37 offers its tools: (donut, presets for its back face).</summary>
     private static readonly (string Profile, string[] Presets)[] Version37Offers =
@@ -998,35 +970,8 @@ internal static class SettingsMigrations
         return changed;
     }
 
-    private static bool AddGeo(List<Preset> presets, List<ToolbarProfile> profiles)
-    {
-        var changed = false;
-        foreach (var preset in BuiltInData.GeoPresets().Where(p => presets.All(existing => existing.Id != p.Id)))
-        {
-            presets.Add(preset);
-            changed = true;
-        }
-        // Only the geospatial extensions: others a user removed from a built-in donut stay removed.
-        changed |= LearnExtensions(profiles, out var claimed, BuiltInData.GeoProfile().Extensions);
-        if (profiles.Any(p => p.Id == "geo"))
-            return changed;
-
-        var geo = BuiltInData.GeoProfile();
-        // Only the extensions no donut of the user takes yet.
-        geo.Extensions = geo.Extensions.Where(claimed.Add).ToList();
-        if (geo.Extensions.Count == 0)
-            return changed;
-        var ids = presets.Select(p => p.Id).ToHashSet();
-        geo.PresetIds = geo.PresetIds.Where(ids.Contains).ToList();
-        var after = profiles.FindIndex(p => p.Id == "models");
-        if (after < 0)
-            after = profiles.FindIndex(p => p.Id == "data");
-        if (after < 0)
-            after = profiles.FindIndex(p => p.Id == "fonts");
-        var insertAt = after >= 0 ? after + 1 : profiles.FindIndex(p => p.IsFallback);
-        profiles.Insert(insertAt < 0 ? profiles.Count : insertAt, geo);
-        return true;
-    }
+    private static bool AddGeo(List<Preset> presets, List<ToolbarProfile> profiles) =>
+        false; // No-op in Filee Lite: the geospatial formats are not part of this build.
 
     private static bool AddPdfSlides(List<Preset> presets, List<ToolbarProfile> profiles)
     {
@@ -1037,43 +982,11 @@ internal static class SettingsMigrations
             presets.Insert(at < 0 ? presets.Count : at + 1, BuiltInData.PdfSlidesPresets().Single());
             changed = true;
         }
-        if (profiles.FirstOrDefault(p => p.Id == "pdf") is { } pdf && pdf.PresetIds.SequenceEqual(BuiltInData.PdfDonutBefore18))
-        {
-            pdf.PresetIds = [.. BuiltInData.PdfDonut];
-            return true;
-        }
         return Offer(presets, profiles, "pdf", "pdf-slides", "to-docx") || changed;
     }
 
-    private static bool AddData(List<Preset> presets, List<ToolbarProfile> profiles)
-    {
-        var changed = false;
-        foreach (var preset in BuiltInData.DataPresets().Where(p => presets.All(existing => existing.Id != p.Id)))
-        {
-            presets.Add(preset);
-            changed = true;
-        }
-        changed |= LearnExtensions(profiles, out var claimed);
-
-        if (profiles.All(p => p.Id != "data"))
-        {
-            var data = BuiltInData.DataProfile();
-            // Only the extensions no donut of the user takes yet.
-            data.Extensions = data.Extensions.Where(claimed.Add).ToList();
-            if (data.Extensions.Count > 0)
-            {
-                var presetIds = presets.Select(p => p.Id).ToHashSet();
-                data.PresetIds = data.PresetIds.Where(presetIds.Contains).ToList();
-                var fonts = profiles.FindIndex(p => p.Id == "fonts");
-                var insertAt = fonts >= 0 ? fonts + 1 : profiles.FindIndex(p => p.IsFallback);
-                profiles.Insert(insertAt < 0 ? profiles.Count : insertAt, data);
-                changed = true;
-            }
-        }
-
-        changed |= Offer(presets, profiles, "spreadsheets", "to-json", "to-csv");
-        return changed;
-    }
+    private static bool AddData(List<Preset> presets, List<ToolbarProfile> profiles) =>
+        false; // No-op in Filee Lite: the structured data formats are not part of this build.
 
     private static bool AddCodecsAndSubtitles(List<Preset> presets, List<ToolbarProfile> profiles)
     {
@@ -1085,23 +998,7 @@ internal static class SettingsMigrations
         }
         changed |= LearnExtensions(profiles, out var claimed);
 
-        if (profiles.All(p => p.Id != "subtitles"))
-        {
-            var subtitles = BuiltInData.SubtitleProfile();
-            subtitles.Extensions = subtitles.Extensions.Where(claimed.Add).ToList();
-            if (subtitles.Extensions.Count > 0)
-            {
-                var ids = presets.Select(p => p.Id).ToHashSet();
-                subtitles.PresetIds = subtitles.PresetIds.Where(ids.Contains).ToList();
-                var audio = profiles.FindIndex(p => p.Id == "audio");
-                var insertAt = audio >= 0 ? audio + 1 : profiles.FindIndex(p => p.IsFallback);
-                profiles.Insert(insertAt < 0 ? profiles.Count : insertAt, subtitles);
-                changed = true;
-            }
-        }
-
         changed |= Offer(presets, profiles, "video", "mp4-hevc", "mp4-720");
-        changed |= Offer(presets, profiles, "video", "extract-subtitles", "to-mp3");
         return changed;
     }
 
@@ -1127,32 +1024,8 @@ internal static class SettingsMigrations
         return changed;
     }
 
-    private static bool AddModels(List<Preset> presets, List<ToolbarProfile> profiles)
-    {
-        var changed = false;
-        foreach (var preset in BuiltInData.ModelPresets().Where(p => presets.All(existing => existing.Id != p.Id)))
-        {
-            presets.Add(preset);
-            changed = true;
-        }
-        changed |= LearnExtensions(profiles, out var claimed);
-        if (profiles.Any(p => p.Id == "models"))
-            return changed;
-
-        var models = BuiltInData.ModelProfile();
-        // Only the extensions no donut of the user takes yet.
-        models.Extensions = models.Extensions.Where(claimed.Add).ToList();
-        if (models.Extensions.Count == 0)
-            return changed;
-        var ids = presets.Select(p => p.Id).ToHashSet();
-        models.PresetIds = models.PresetIds.Where(ids.Contains).ToList();
-        var after = profiles.FindIndex(p => p.Id == "data");
-        if (after < 0)
-            after = profiles.FindIndex(p => p.Id == "fonts");
-        var insertAt = after >= 0 ? after + 1 : profiles.FindIndex(p => p.IsFallback);
-        profiles.Insert(insertAt < 0 ? profiles.Count : insertAt, models);
-        return true;
-    }
+    private static bool AddModels(List<Preset> presets, List<ToolbarProfile> profiles) =>
+        false; // No-op in Filee Lite: the 3D model formats are not part of this build.
 
     private static bool AddCatalog(List<Preset> presets, List<ToolbarProfile> profiles)
     {

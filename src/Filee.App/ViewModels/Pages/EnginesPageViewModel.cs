@@ -32,7 +32,7 @@ public sealed partial class EngineItemViewModel(IConverter converter, EngineStat
     /// <summary>What the engine converts (engine.&lt;id&gt;.description), or null when there is no text for it.</summary>
     public string? Description { get; } = Describe(loc, converter.Id);
 
-    public string Conversions { get; } = loc.Format("engines.conversions", converter.Edges.Count);
+    public string Conversions { get; } = loc.Format("engines.conversions", ConverterCatalog.SupportedEdges(converter).Count());
 
     private static string? Describe(ILocalizer loc, string id)
     {

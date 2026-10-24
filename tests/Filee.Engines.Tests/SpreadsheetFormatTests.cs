@@ -333,80 +333,6 @@ public class SpreadsheetFormatTests(EngineFixture fx) : IClassFixture<EngineFixt
         Assert.Equal("#FFFF00", row[1].Style.Fill); // the column's default cell style
     }
 
-    [Fact]
-    public async Task Ods_to_csv_writes_what_calc_shows()
-    {
-        var outputs = await ConvertAsync(SalesOds(fx.NewFolder()), "csv");
-
-        Assert.Equal(["매출보고_매출.csv", "매출보고_색칠.csv"], outputs.Select(Path.GetFileName));
-        Assert.Equal(
-            "지점별 매출,,\r\n" +
-            "\"1,234.50\",12.8%,\"-₩5,000\"\r\n" +
-            "2026년 10월 1일,13:30,TRUE\r\n" +
-            "7,7,7\r\n" +
-            "7,7,7\r\n" +
-            "\" 앞 공백  세 칸\t탭\n줄\n둘째 문단\",,\r\n", // hidden row and column left out
-            (await File.ReadAllTextAsync(outputs[0], TestContext.Current.CancellationToken)).TrimStart('﻿'));
-    }
-
-    [Fact]
-    public async Task Password_protected_ods_fails_with_a_clear_message()
-    {
-        var path = OdsBuilder.Save(Path.Combine(fx.NewFolder(), "잠금.ods"), "", "<table:table table:name=\"A\"/>", encrypted: true);
-
-        Assert.Contains("password", Assert.Throws<InvalidDataException>(() => OdsReader.Read(path)).Message);
-        var job = await fx.ConvertAsync([path], new Preset { TargetFormat = "csv" });
-        Assert.Contains("password", Assert.Single(job.Files).ErrorDetail);
-    }
-
-    [Fact]
-    public async Task Xlsx_to_ods_and_back_keeps_values_formats_merges_and_widths()
-    {
-        var dir = fx.NewFolder();
-        var xlsx = OfficeTests.SalesWorkbook(dir);
-        var source = XlsxReader.Read(xlsx);
-
-        var ods = Assert.Single(await ConvertAsync(xlsx, "ods"));
-
-        using (var zip = ZipFile.OpenRead(ods))
-        {
-            // OpenDocument: "mimetype" first and stored, so the type can be read at a fixed offset.
-            var mimetype = zip.Entries[0];
-            Assert.Equal(("mimetype", mimetype.Length), (mimetype.FullName, mimetype.CompressedLength));
-            using (var reader = new StreamReader(mimetype.Open()))
-                Assert.Equal("application/vnd.oasis.opendocument.spreadsheet", await reader.ReadToEndAsync(TestContext.Current.CancellationToken));
-            Assert.NotNull(zip.GetEntry("META-INF/manifest.xml"));
-
-            XElement content;
-            using (var stream = zip.GetEntry("content.xml")!.Open())
-                content = XElement.Load(stream);
-            var cells = content.Descendants(Table + "table-cell").ToList();
-            // Numbers are numbers with a data style; text:p is the text Excel showed.
-            var won = cells.Single(c => (string?)c.Attribute(Office + "value") == "1350000");
-            Assert.Equal(("float", "1,350,000원"), ((string?)won.Attribute(Office + "value-type"), won.Element(Text + "p")!.Value));
-            var dataStyle = content.Descendants().Single(e => (string?)e.Attribute(Style + "name") == (string?)content.Descendants(Style + "style")
-                .Single(s => (string?)s.Attribute(Style + "name") == (string?)won.Attribute(Table + "style-name")).Attribute(Style + "data-style-name"));
-            Assert.Equal("원", dataStyle.Element(Number + "text")!.Value);
-            Assert.Contains(cells, c => (string?)c.Attribute(Office + "date-value") == "2026-10-01" && (string?)c.Attribute(Office + "value-type") == "date");
-            Assert.Contains(cells, c => (string?)c.Attribute(Office + "value-type") == "percentage" && (string?)c.Attribute(Office + "value") == "0.128");
-            Assert.Equal("4", (string?)cells.First(c => c.Value == "지점별 매출").Attribute(Table + "number-columns-spanned"));
-            Assert.DoesNotContain("보이면 안 됨", content.Value);
-        }
-
-        var fromOds = OdsReader.Read(ods);
-        AssertSameCells(source, fromOds);
-        AssertSameLayout(source, fromOds);
-        var header = fromOds.Sheets[0].Get(1, 0)!.Style;
-        Assert.Equal((true, "#FFFFFF", "#1F4E79", CellAlign.Center, "thin"), (header.Bold, header.Color, header.Fill, header.Align, header.Bottom.Style));
-
-        File.Move(ods, Path.Combine(dir, "사본.ods"));
-        var back = Assert.Single(await ConvertAsync(Path.Combine(dir, "사본.ods"), "xlsx"));
-        var result = XlsxReader.Read(back);
-        AssertSameCells(source, result);
-        AssertSameLayout(source, result);
-        Assert.Equal("#1F4E79", result.Sheets[0].Get(1, 0)!.Style.Fill);
-    }
-
     [Theory]
     [InlineData("0", "float")]
     [InlineData("0.00", "float")]
@@ -481,41 +407,6 @@ public class SpreadsheetFormatTests(EngineFixture fx) : IClassFixture<EngineFixt
 
     // ───────────────────────── TSV ─────────────────────────
 
-    [Fact]
-    public async Task Tsv_to_xlsx_and_back_keeps_every_value()
-    {
-        var dir = fx.NewFolder();
-        // Commas are data in TSV: "1,200" and "Lee, J" stay one field each.
-        const string Tsv = "이름\t금액\t메모\r\n김민지\t1,200\t\"줄\n바꿈\"\r\nLee, J\t3.5\t\"\"\"인용\"\"\"\r\n";
-        var tsv = Path.Combine(dir, "명단.tsv");
-        await File.WriteAllTextAsync(tsv, Tsv, TestContext.Current.CancellationToken);
-
-        var xlsx = Assert.Single(await ConvertAsync(tsv, "xlsx"));
-        var sheet = Assert.Single(XlsxReader.Read(xlsx).Sheets);
-        Assert.Equal(("1,200", false), (sheet.Get(1, 1)!.Text, sheet.Get(1, 1)!.IsNumber));
-        Assert.Equal(("Lee, J", 3.5), (sheet.Get(2, 0)!.Text, sheet.Get(2, 1)!.Value));
-        Assert.Equal("줄\n바꿈", sheet.Get(1, 2)!.Text);
-
-        File.Move(xlsx, Path.Combine(dir, "사본.xlsx"));
-        var back = Assert.Single(await ConvertAsync(Path.Combine(dir, "사본.xlsx"), "tsv"));
-        var bytes = await File.ReadAllBytesAsync(back, TestContext.Current.CancellationToken);
-        Assert.Equal([0xEF, 0xBB, 0xBF], bytes[..3]);
-        Assert.Equal(Tsv, Encoding.UTF8.GetString(bytes, 3, bytes.Length - 3));
-
-        var csv = Assert.Single(await ConvertAsync(tsv, "csv"));
-        Assert.StartsWith("이름,금액,메모\r\n김민지,\"1,200\",", (await File.ReadAllTextAsync(csv, TestContext.Current.CancellationToken)).TrimStart('﻿'));
-    }
-
-    [Fact]
-    public async Task Workbook_to_tsv_writes_one_file_per_sheet()
-    {
-        var outputs = await ConvertAsync(OfficeTests.SalesWorkbook(fx.NewFolder()), "tsv");
-
-        Assert.Equal(["매출보고_매출.tsv", "매출보고_메모.tsv", "매출보고_넓은 표.tsv"], outputs.Select(Path.GetFileName));
-        Assert.StartsWith("지점별 매출\t\t\t\r\n지점\t매출\t일자\t성장률\r\n서울 강남\t1,350,000원\t2026-10-01\t12.8%\r\n",
-            (await File.ReadAllTextAsync(outputs[0], TestContext.Current.CancellationToken)).TrimStart('﻿'));
-    }
-
     // ───────────────────────── PDF ─────────────────────────
 
     [Theory]
@@ -546,23 +437,9 @@ public class SpreadsheetFormatTests(EngineFixture fx) : IClassFixture<EngineFixt
 
     [Theory]
     [InlineData("xls", "xlsx", "spreadsheet")]
-    [InlineData("xls", "ods", "spreadsheet")]
     [InlineData("xls", "csv", "spreadsheet")]
-    [InlineData("xls", "tsv", "spreadsheet")]
-    [InlineData("ods", "xlsx", "spreadsheet")]
-    [InlineData("ods", "csv", "spreadsheet")]
-    [InlineData("xlsx", "ods", "spreadsheet")]
-    [InlineData("xlsx", "tsv", "spreadsheet")]
-    [InlineData("csv", "ods", "spreadsheet")]
-    [InlineData("csv", "tsv", "spreadsheet")]
-    [InlineData("tsv", "xlsx", "spreadsheet")]
-    [InlineData("tsv", "ods", "spreadsheet")]
     [InlineData("xls", "hwpx", "hwpx-writer")]
-    [InlineData("ods", "hwpx", "hwpx-writer")]
-    [InlineData("tsv", "hwpx", "hwpx-writer")]
     [InlineData("xls", "pdf", "hwpx-writer,rhwp")]
-    [InlineData("ods", "pdf", "hwpx-writer,rhwp")]
-    [InlineData("tsv", "pdf", "hwpx-writer,rhwp")]
     public void Spreadsheets_convert_without_libreoffice(string from, string to, string engines)
     {
         Assert.Equal(engines.Split(','), BuiltInPlanner("rhwp").Plan(from, to)!.Steps.Select(s => s.Converter.Id));
@@ -579,40 +456,6 @@ public class SpreadsheetFormatTests(EngineFixture fx) : IClassFixture<EngineFixt
     }
 
     // ───────────────────────── LibreOffice cross-check ─────────────────────────
-
-    [Fact]
-    public async Task LibreOffice_reads_our_ods_and_we_read_its_ods_and_xls()
-    {
-        var libreOffice = fx.Converters.Single(c => c.Id == "libreoffice");
-        Assert.SkipUnless(fx.Catalog.StatusOf(libreOffice).IsAvailable, "LibreOffice not installed");
-        var dir = fx.NewFolder();
-        var xlsx = OfficeTests.SalesWorkbook(dir);
-        var ods = Assert.Single(await ConvertAsync(xlsx, "ods"));
-
-        var books = new Dictionary<string, Workbook>
-        {
-            ["our ODS opened by LibreOffice"] = XlsxReader.Read(await LibreOfficeAsync(libreOffice, ods, "ods", "xlsx")),
-            ["ODS by LibreOffice"] = OdsReader.Read(await LibreOfficeAsync(libreOffice, xlsx, "xlsx", "ods")),
-            ["XLS by LibreOffice"] = XlsReader.Read(await LibreOfficeAsync(libreOffice, xlsx, "xlsx", "xls")),
-        };
-        foreach (var (name, book) in books)
-        {
-            var sales = book.Sheets[0];
-            Assert.True(new[] { "매출", "메모", "넓은 표" }.SequenceEqual(book.Sheets.Select(s => s.Name)), name);
-            Assert.True(sales.Get(2, 1)!.Text == "1,350,000원", $"{name}: {sales.Get(2, 1)!.Text}");
-            Assert.True(sales.Get(2, 3)!.Text == "12.8%", $"{name}: {sales.Get(2, 3)!.Text}");
-            // LibreOffice shows built-in dates in its own locale's order: compare the value.
-            Assert.True(sales.Get(2, 2)!.Value == October1, $"{name}: {sales.Get(2, 2)!.Value}");
-            Assert.True(sales.Get(4, 1)!.Text == "2,220,000원", $"{name}: {sales.Get(4, 1)!.Text}");
-            Assert.True(new CellRange(0, 0, 0, 3) == Assert.Single(sales.Merges), name);
-            Assert.True(sales.Get(1, 0)!.Style.Align == CellAlign.Center, name);
-            // LibreOffice measures character widths with its own fonts, so widths through ODS move by up to a fifth;
-            // XLS keeps Excel's own unit.
-            var tolerance = name.StartsWith("XLS", StringComparison.Ordinal) ? 0.01 : 0.25;
-            Assert.True(Math.Abs(sales.ColumnWidth(0) - 14) <= 14 * tolerance, $"{name}: {sales.ColumnWidth(0)}");
-            Assert.True(Math.Abs(sales.ColumnWidth(0) / sales.ColumnWidth(1) - 14.0 / 12) < 0.02, $"{name}: {sales.ColumnWidth(0)} / {sales.ColumnWidth(1)}");
-        }
-    }
 
     private async Task<string> LibreOfficeAsync(IConverter libreOffice, string input, string from, string to)
     {

@@ -399,14 +399,14 @@ public class DonutGroupTests
             vm.FitToThisDonut();
             Assert.False(vm.ReserveSubRing);
 
-            vm.Load([@"C:\docs\a.pdf"], clickMode: true); // Edit is a group on the PDF donut's back
+            vm.Load([@"C:\docs\a.pdf"], clickMode: true); // Edit is a group on the PDF donut's front
             vm.FitToThisDonut();
             Assert.True(vm.ReserveSubRing);
-            Assert.True(vm.ToggleFace());
-            Assert.True(vm.Items[0].IsGroup);
-            Assert.Equal(Preset.MaxSubPresets, vm.Items[0].Children!.Count);
-            Assert.Equal("tool-pdf-crop", vm.PresetShownAt(0, 0)!.Id);
-            Assert.Equal("tool-pdf-add", vm.PresetShownAt(0, 5)!.Id);
+            var edit = vm.Items.ToList().FindIndex(i => i.Id == "pdf-edit");
+            Assert.True(vm.Items[edit].IsGroup);
+            Assert.Equal(Preset.MaxSubPresets, vm.Items[edit].Children!.Count);
+            Assert.Equal("tool-pdf-crop", vm.PresetShownAt(edit, 0)!.Id);
+            Assert.Equal("tool-pdf-add", vm.PresetShownAt(edit, 5)!.Id);
 
             vm.Load([@"C:\photos\a.jpg"], clickMode: true); // the image donut has
             vm.FitToThisDonut();

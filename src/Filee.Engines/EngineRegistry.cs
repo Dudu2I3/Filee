@@ -2,26 +2,16 @@
 
 using Filee.Core.Conversion;
 using Filee.Engines.Archives;
-using Filee.Engines.Cad;
-using Filee.Engines.Data;
-using Filee.Engines.Ebooks;
-using Filee.Engines.Email;
-using Filee.Engines.Fonts;
-using Filee.Engines.Geo;
 using Filee.Engines.Hwp;
 using Filee.Engines.Hwp.Hwpx;
-using Filee.Engines.Icns;
 using Filee.Engines.Infrastructure;
 using Filee.Engines.Magick;
 using Filee.Engines.Media;
-using Filee.Engines.Models3D;
 using Filee.Engines.Ocr;
 using Filee.Engines.Office;
 using Filee.Engines.Pdf;
-using Filee.Engines.Subtitles;
 using Filee.Engines.Text;
 using Filee.Engines.Vector;
-using Filee.Engines.Wic;
 using Microsoft.Extensions.Logging;
 
 namespace Filee.Engines;
@@ -43,34 +33,20 @@ public static class EngineRegistry
         new MagickImageConverter(),
         new PdfSharpConverter(),
         new PdfiumConverter(),
-        new RhwpConverter(),
-        new UnhwpConverter(),
+        new RhwpConverter(), // draws DOCX / XLSX / PPTX / Markdown / HTML as PDF (through HWPX); HWP files themselves are not offered
         new MarkdownConverter(),
+        new DocumentMarkdownConverter(),
         new SpreadsheetConverter(),
         new OoxmlConverter(),
         new HwpxConverter(),
         new ArchiveConverter(),
         new VectorConverter(),
-        new IcnsConverter(),
-        new FontConverter(),
         new DocxWriterConverter(),
         new PdfTextConverter(),
         new PdfSlidesConverter(),
         new PdfTablesConverter(),
-        new EmlConverter(),
-        new DataConverter(),
-        new SubtitleConverter(),
-        new WicImageConverter(),
         new FfmpegConverter(loggers?.CreateLogger<FfmpegConverter>()),
-        new CadConverter(),
-        new ModelConverter(),
-        new GeoConverter(),
-        new EbookConverter(),
-        new PandocConverter(),
-        new GhostscriptConverter(),
-        new VisionConverter(), // before Tesseract: a Mac's OCR step (Tesseract reads the languages Vision doesn't)
-        new TesseractConverter(),
-        new CalibreConverter(),
+        new VisionConverter(),
         new LibreOfficeConverter(env, loggers?.CreateLogger<LibreOfficeConverter>()),
     ];
 

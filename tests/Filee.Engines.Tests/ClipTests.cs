@@ -146,9 +146,6 @@ public class ClipTests(EngineFixture fx) : IClassFixture<EngineFixture>
             Assert.True(ClipTool.CanCut(format, planner));
             Assert.Equal("ffmpeg", Assert.Single(planner.Plan(format, format)!.Steps).Converter.Id);
         }
-        // RealMedia is read, not written: its clips are MP4.
-        Assert.Equal("mp4", ClipTool.TargetFor("rm", planner));
-        Assert.True(ClipTool.CanCut("rm", planner));
         Assert.False(ClipTool.CanCut("mp3", planner));
     }
 

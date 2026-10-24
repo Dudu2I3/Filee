@@ -23,17 +23,6 @@ public sealed class FfmpegCollection;
 [Collection(nameof(FfmpegCollection))]
 public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
 {
-    [Fact]
-    public void Cri_usm_game_videos_go_to_mp4_through_ffmpeg()
-    {
-        // #485: read only, through FFmpeg's usm demuxer; never a step towards something else.
-        SkipUnlessInstalled();
-        var route = fx.Catalog.CreatePlanner().Plan("usm", "mp4");
-        Assert.NotNull(route);
-        Assert.Equal("ffmpeg", Assert.Single(route.Steps).Converter.Id);
-        Assert.Null(fx.Catalog.CreatePlanner().Plan("mp4", "usm"));
-    }
-
     private static readonly (string Ffmpeg, string Ffprobe)? Tools = FfmpegConverter.Locate();
 
     private static void SkipUnlessInstalled() =>
@@ -57,26 +46,10 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
     [InlineData("flac", "mp3")]
     [InlineData("mp3", "mp3")] // re-encode, e.g. "MP3 128k"
     [InlineData("m4a", "wav")]
-    [InlineData("amr", "mp3")]
     [InlineData("gif", "mp4")]
     [InlineData("gif", "webm")]
     [InlineData("png", "mov")]
-    [InlineData("apng", "mp4")]
-    [InlineData("mov", "apng")]
-    [InlineData("rm", "mp4")]
-    [InlineData("dss", "mp3")]
     [InlineData("mp4", "png")]
-    [InlineData("ape", "flac")]
-    [InlineData("wv", "mp3")]
-    [InlineData("tta", "wv")]
-    [InlineData("mpc", "m4a")]
-    [InlineData("tak", "flac")]
-    [InlineData("dsf", "wav")]
-    [InlineData("dff", "flac")]
-    [InlineData("dts", "eac3")]
-    [InlineData("spx", "ogg")]
-    [InlineData("wav", "w64")]
-    [InlineData("mkv", "eac3")]
     public void Media_conversions_take_one_ffmpeg_step(string from, string to)
     {
         var route = Planner().Plan(from, to);
@@ -133,17 +106,6 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
         Assert.NotNull(Planner().Plan("mp4", to)); // a video still gives its sound
     }
 
-    [Theory]
-    [InlineData("jpg", "srt")]
-    [InlineData("png", "vtt")]
-    [InlineData("gif", "ass")]
-    public void A_picture_never_becomes_subtitles(string from, string to)
-    {
-        // Picture → video → subtitles would only find none.
-        Assert.Null(Planner().Plan(from, to));
-        Assert.NotNull(Planner().Plan("mkv", to)); // a video still gives its subtitle track
-    }
-
     [Fact]
     public void A_video_to_jpg_is_still_turned_by_the_image_engine()
     {
@@ -172,7 +134,6 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
     [InlineData("jpg", "mp4", "magick")]
     [InlineData("avif", "webm", "magick")]
     [InlineData("svg", "mov", "vector")]
-    [InlineData("qoi", "mp4", "magick")]
     public void Photos_reach_video_as_a_full_colour_png_not_a_gif(string from, string to, string imageEngine)
     {
         var route = Planner().Plan(from, to);
@@ -184,24 +145,11 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
     [InlineData("pdf", "mp4", "pdfium")] // a slideshow of the pages
     [InlineData("webp", "mov", "magick")] // an animated WebP keeps moving
     [InlineData("tiff", "webm", "magick")]
-    [InlineData("mng", "mp4", "magick")]
     public void Animations_and_pages_still_reach_video_through_gif(string from, string to, string imageEngine)
     {
         var route = Planner().Plan(from, to);
         Assert.NotNull(route);
         Assert.Equal([(imageEngine, from, "gif"), ("ffmpeg", "gif", to)], route.Steps.Select(s => (s.Converter.Id, s.From, s.To)));
-    }
-
-    [Fact]
-    public void Every_writable_video_and_audio_format_is_a_target()
-    {
-        // A new format in the catalog must get an encoding (or a documented reason why not) in MediaEncoding.
-        Assert.Equal(
-            FormatRegistry.Known.Where(f => f.Category == FormatCategory.Video && f.Writable).Select(f => f.Id).Order(),
-            MediaEncoding.VideoTargets.Keys.Order());
-        Assert.Equal(
-            FormatRegistry.Known.Where(f => f.Category == FormatCategory.Audio && f.Writable).Select(f => f.Id).Order(),
-            MediaEncoding.AudioTargets.Keys.Order());
     }
 
     [Fact]
@@ -718,26 +666,6 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
     }
 
     [Fact]
-    public async Task Alac_speex_and_dts_are_written_and_read()
-    {
-        SkipUnlessInstalled();
-        var folder = fx.NewFolder();
-        var tone = await MakeToneAsync(folder, "tone.wav");
-        var alac = await ProbeAsync(await ConvertAsync(tone, "m4a", new MediaOptions { AudioCodec = AudioCodec.Alac }));
-        Assert.Equal("alac", alac.Audio?.Codec);
-        Assert.InRange(alac.Duration, 1.9, 2.1);
-
-        // Formats Filee only reads, made with FFmpeg's own encoders (DTS's is experimental), then converted.
-        var spx = Path.Combine(folder, "voice.spx");
-        await RunAsync(Tools!.Value.Ffmpeg, ["-hide_banner", "-nostdin", "-v", "error", "-y", "-i", tone, "-ar", "16000", "-ac", "1", "-c:a", "libspeex", "-f", "ogg", spx]);
-        var dts = Path.Combine(folder, "surround.dts");
-        await RunAsync(Tools.Value.Ffmpeg, ["-hide_banner", "-nostdin", "-v", "error", "-y", "-i", tone, "-ar", "48000", "-c:a", "dca", "-strict", "-2", "-f", "dts", dts]);
-        Assert.Equal("pcm_s16le", (await ProbeAsync(await ConvertAsync(spx, "wav"))).Audio?.Codec);
-        Assert.Equal("flac", (await ProbeAsync(await ConvertAsync(dts, "flac"))).Audio?.Codec);
-        Assert.Equal("wavpack", (await ProbeAsync(await ConvertAsync(dts, "wv"))).Audio?.Codec);
-    }
-
-    [Fact]
     public async Task An_iphone_hdr_mov_is_rewrapped_into_mp4_without_re_encoding()
     {
         SkipUnlessInstalled();
@@ -790,51 +718,6 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
         Assert.Equal("h264", mp4.Video?.Codec);
         Assert.Equal((480, 270), (mp4.Video!.Width, mp4.Video.Height));
         Assert.InRange(mp4.Duration, 1.5, 2.5);
-    }
-
-    [Fact]
-    public async Task Video_becomes_an_apng_and_back()
-    {
-        SkipUnlessInstalled();
-        var source = await MakeClipAsync(fx.NewFolder(), "anim.mp4", seconds: 1, size: "640x360", audio: false);
-        var apng = await ConvertAsync(source, "apng");
-        var probed = await ProbeAsync(apng);
-        Assert.Equal("apng", probed.Video?.Codec);
-        Assert.Equal((480, 270), (probed.Video!.Width, probed.Video.Height)); // Balanced: at most 480 px wide
-        Assert.InRange(probed.Video.Frames, 10, 15); // 1 s at 12 fps
-
-        // Filee's own reader takes FFmpeg's APNG: every frame, as GIF.
-        var gif = await ConvertAsync(apng, "gif");
-        using (var frames = new ImageMagick.MagickImageCollection(gif))
-            Assert.Equal(probed.Video.Frames, frames.Count);
-
-        // APNG → MP4 straight through FFmpeg.
-        var mp4 = await ProbeAsync(await ConvertAsync(apng, "mp4"));
-        Assert.Equal("h264", mp4.Video?.Codec);
-        Assert.InRange(mp4.Duration, 0.7, 1.3);
-    }
-
-    [Fact]
-    public async Task Ffmpeg_reads_the_apng_filee_writes()
-    {
-        SkipUnlessInstalled();
-        var folder = fx.NewFolder();
-        var gif = Path.Combine(folder, "anim.gif");
-        using (var frames = new ImageMagick.MagickImageCollection())
-        {
-            foreach (var color in new[] { ImageMagick.MagickColors.Red, ImageMagick.MagickColors.Lime, ImageMagick.MagickColors.Blue })
-                frames.Add(new ImageMagick.MagickImage(color, 64, 48) { AnimationDelay = 20 });
-            frames.Write(gif, ImageMagick.MagickFormat.Gif);
-        }
-
-        var apng = await ConvertAsync(gif, "apng");
-
-        var probed = await ProbeAsync(apng);
-        Assert.Equal("apng", probed.Video?.Codec);
-        Assert.Equal((64, 48, 3), (probed.Video!.Width, probed.Video.Height, probed.Video.Frames));
-        // FFmpeg takes the frame delays: three frames of 0.2 s make a 0.6 s video.
-        var mp4 = await ProbeAsync(await ConvertAsync(apng, "mp4"));
-        Assert.InRange(mp4.Duration, 0.5, 0.75);
     }
 
     [Fact]
@@ -996,22 +879,6 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
         Assert.Equal(decoded, Directory.GetFiles(frames, "*.png").Length);
     }
 
-    [Fact]
-    public async Task Odd_sized_surround_video_is_encoded_everywhere()
-    {
-        SkipUnlessInstalled();
-        // 321×241 at 15 fps with 6 channels: odd sizes, a rate MPEG-2 cannot store and more channels than WMA/MP3 hold.
-        var source = await MakeClipAsync(fx.NewFolder(), "odd.mkv", size: "320x240", fps: 15, channels: 6,
-            extra: ["-vf", "pad=321:241", "-c:v", "libx264", "-pix_fmt", "yuv444p", "-c:a", "aac"]);
-        foreach (var target in new[] { "mp4", "wmv", "mpg", "avi", "wma", "mp3" })
-        {
-            var probed = await ProbeAsync(await ConvertAsync(source, target));
-            Assert.NotNull(probed.Audio);
-            if (probed.Video is { } video)
-                Assert.Equal((320, 240), (video.Width, video.Height));
-        }
-    }
-
     [Theory]
     [InlineData("mp3", "mp3")]
     [InlineData("flac", "flac")]
@@ -1108,30 +975,6 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
         Assert.Equal(FileState.Failed, file.State);
         Assert.Contains("no audio track", file.ErrorDetail);
         Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(source)!, "*.mp3"));
-    }
-
-    [Fact]
-    public async Task Cover_art_and_tags_are_kept()
-    {
-        SkipUnlessInstalled();
-        var folder = fx.NewFolder();
-        var cover = Path.Combine(folder, "cover.png");
-        await RunAsync(Tools!.Value.Ffmpeg, ["-hide_banner", "-nostdin", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=size=200x200", "-frames:v", "1", cover]);
-        var song = Path.Combine(folder, "song.mp3");
-        await RunAsync(Tools.Value.Ffmpeg, ["-hide_banner", "-nostdin", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=duration=2", "-i", cover,
-            "-map", "0:a", "-map", "1:v", "-c:v", "copy", "-disposition:v:0", "attached_pic", "-metadata", "title=노래 제목", song]);
-
-        // FLAC and M4A take a picture stream; Opus and Ogg a METADATA_BLOCK_PICTURE comment; MKA an attachment.
-        foreach (var target in new[] { "flac", "m4a", "opus", "ogg", "mka" })
-        {
-            var output = await ConvertAsync(song, target);
-            var probed = await ProbeAsync(output);
-            Assert.True(probed.Streams.Any(s => s.Cover && s.Codec == "png"), $"{target}: no cover");
-            var tags = await ProcessRunner.RunAsync(Tools.Value.Ffprobe,
-                ["-v", "error", "-show_entries", "format_tags=title,major_brand:stream_tags=title", "-of", "json", output],
-                TimeSpan.FromMinutes(1), CancellationToken.None);
-            Assert.True(tags.StandardOutput.Contains("노래 제목"), $"{target}: title lost");
-        }
     }
 
     // ───────────────────────── Progress and cancellation ─────────────────────────
@@ -1304,31 +1147,6 @@ public class MediaTests(EngineFixture fx) : IClassFixture<EngineFixture>
     }
 
     // ───────────────────────── Video CD (issue #292) ─────────────────────────
-
-    [Theory]
-    [InlineData("mp4")]
-    [InlineData("mkv")]
-    public async Task A_video_cd_dat_file_converts_with_its_picture_and_sound(string target)
-    {
-        SkipUnlessInstalled();
-        var folder = fx.NewFolder();
-        // A Video CD keeps its MPEG-1 streams in MPEGAV/AVSEQ01.DAT.
-        var input = Path.Combine(folder, "AVSEQ01.DAT");
-        var create = await ProcessRunner.RunAsync(Tools!.Value.Ffmpeg,
-            ["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "testsrc2=size=352x288:rate=25",
-             "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=44100", "-t", "0.4",
-             "-target", "pal-vcd", "-f", "mpeg", input], TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken);
-        Assert.True(create.ExitCode == 0, create.StandardError);
-        Assert.Equal("mpg", FormatRegistry.Detect(input)?.Id);
-
-        var job = await fx.ConvertAsync([input], new Preset { TargetFormat = target });
-
-        Assert.True(job.State == JobState.Completed, string.Join("; ", job.Files.Select(f => f.ErrorDetail)));
-        var decode = await ProcessRunner.RunAsync(Tools.Value.Ffmpeg,
-            ["-v", "error", "-i", Assert.Single(job.Outputs), "-map", "0:v:0", "-map", "0:a:0", "-f", "null", "-"],
-            TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken);
-        Assert.True(decode.ExitCode == 0, decode.StandardError);
-    }
 
     [Fact]
     public async Task A_dat_file_that_is_no_video_fails()

@@ -51,15 +51,14 @@ public sealed class CliTests : IDisposable
     [Fact]
     public async Task Zip_saves_the_result_of_each_file_as_one_zip()
     {
-        var geojson = Path.Combine(_folder, "places.geojson");
-        File.WriteAllText(geojson, """{"type":"Feature","properties":{"n":1},"geometry":{"type":"Point","coordinates":[1,2]}}""");
+        var source = Png("places.png");
 
-        var (code, _, _) = await Run("convert", geojson, "--to", "shp", "--zip");
+        var (code, _, _) = await Run("convert", source, "--to", "jpg", "--zip");
 
         Assert.Equal(Cli.Success, code);
         using var zip = System.IO.Compression.ZipFile.OpenRead(Path.Combine(_folder, "places.zip"));
-        Assert.Equal(["places.cpg", "places.dbf", "places.prj", "places.shp", "places.shx"], zip.Entries.Select(e => e.Name).Order().ToArray());
-        Assert.False(File.Exists(Path.Combine(_folder, "places.shp")));
+        Assert.Equal(["places.jpg"], zip.Entries.Select(e => e.Name).Order().ToArray());
+        Assert.False(File.Exists(Path.Combine(_folder, "places.jpg")));
     }
 
     [Fact]
@@ -252,17 +251,6 @@ public sealed class CliTests : IDisposable
         Assert.Contains("to-png", output);
     }
 
-    [Fact]
-    public async Task Jpeg_xr_converts_on_windows_and_is_no_download_away_elsewhere()
-    {
-        var (code, output, _) = await Run("formats", "jxr");
-
-        Assert.Equal(Cli.Success, code);
-        Assert.Equal(OperatingSystem.IsWindows(), output.Contains("png, jpg", StringComparison.Ordinal));
-        // Elsewhere no download would help (on Windows, FFmpeg adds HEIC and video).
-        Assert.Equal(OperatingSystem.IsWindows(), output.Contains("optional engines", StringComparison.Ordinal));
-    }
-
     /// <summary>Adds presets to the settings folder the CLI runs with.</summary>
     private void AddPresets(params Preset[] presets)
     {
@@ -297,23 +285,6 @@ public sealed class CliTests : IDisposable
         var (_, list, _) = await Run("presets");
         Assert.Contains("my-web", list);
         Assert.DoesNotContain("web-group", list);
-    }
-
-    [Fact]
-    public async Task Data_files_convert_to_each_other()
-    {
-        var json = Path.Combine(_folder, "config.json");
-        await File.WriteAllTextAsync(json, """{"name": "Filee", "ports": [80, 443]}""", TestContext.Current.CancellationToken);
-
-        var (code, output, errors) = await Run("convert", json, "--to", "yaml");
-
-        Assert.Equal(Cli.Success, code);
-        Assert.Equal("", errors);
-        Assert.Equal("name: Filee\nports:\n  - 80\n  - 443\n", await File.ReadAllTextAsync(Path.Combine(_folder, "config.yaml"), TestContext.Current.CancellationToken));
-
-        (code, output, _) = await Run("formats", "json");
-        Assert.Equal(Cli.Success, code);
-        Assert.Contains("yaml, toml, xml", output);
     }
 
     [Fact]

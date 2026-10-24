@@ -2023,7 +2023,8 @@ public class RenderTests
             var column = window.GetVisualDescendants().OfType<StackPanel>().Single(s => s.Name == "PaletteColumn");
             var tabs = window.GetVisualDescendants().OfType<ListBox>().Single(l => l.Name == "PaletteTabs");
             Assert.True(tabs.IsEffectivelyVisible);
-            Assert.Equal(Enum.GetValues<PaletteTab>(), tabs.Items.Cast<PaletteTabItem>().Select(t => t.Id));
+            Assert.Equal([PaletteTab.All, PaletteTab.Image, PaletteTab.Document, PaletteTab.Media, PaletteTab.Edit, PaletteTab.Archive],
+                tabs.Items.Cast<PaletteTabItem>().Select(t => t.Id));
 
             Avalonia.Rect InWindow(Avalonia.Visual v) =>
                 new Avalonia.Rect(v.Bounds.Size).TransformToAABB(Avalonia.VisualExtensions.TransformToVisual(v, window)!.Value);
@@ -2108,12 +2109,11 @@ public class RenderTests
             Assert.True(InWindow(last).Right <= InWindow(column).Right + 0.5);
             var chips = window.GetVisualDescendants().OfType<Border>().Where(b => b.DataContext is PaletteChip && b.Classes.Contains("chip"))
                 .Select(b => ((PaletteChip)b.DataContext!).PresetId).ToList();
-            // The last tab is Font: font presets, no image or archive ones.
-            Assert.Equal(PaletteTab.Font, vm.SelectedTab!.Id);
-            Assert.Contains("to-ttf", chips);
-            Assert.DoesNotContain("to-zip", chips);
+            // The last tab is Archive: archive presets, no image ones.
+            Assert.Equal(PaletteTab.Archive, vm.SelectedTab!.Id);
+            Assert.Contains("to-zip", chips);
             Assert.DoesNotContain("to-png", chips);
-            Save(window, $"toolbar-tabs-{language}-{suffix}-font.png");
+            Save(window, $"toolbar-tabs-{language}-{suffix}-archive.png");
 
             // Up goes back to the row above, to the tab nearest above.
             var above = Nearest(items.Count - 1, below: false);

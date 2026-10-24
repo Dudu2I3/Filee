@@ -496,7 +496,7 @@ public class PresetAvailabilityTests
             if (extra is not null)
                 converters.Add(extra);
             Catalog = new ConverterCatalog(converters);
-            Packages = EngineDownloads.Packages.Where(p => p.Id is "pandoc" or "ffmpeg")
+            Packages = EngineDownloads.Packages.Where(p => p.Id is "ffmpeg")
                 .Select(p => new EnginePackageState(p, Loc) { Status = EnginePackageStatus.NotInstalled }).ToList();
             Availability = new PresetAvailability(Catalog, Loc, Packages);
             _store.Presets.AddRange(
@@ -575,7 +575,7 @@ public class PresetAvailabilityTests
 
         Assert.Null(f.Availability.Check(studio, [Fixture.Format("xlsx")]));
         Assert.Equal(f.Loc["error.unsupported_source"],
-            f.Availability.Check(studio, [Fixture.Format("ods")]));
+            f.Availability.Check(studio, [Fixture.Format("csv")]));
         Assert.Null(f.Availability.Check(studio, [Fixture.Format("xlsx"), Fixture.Format("xlsx")]));
 
         libreOffice.Available = false;
@@ -972,11 +972,8 @@ public class ToolbarPaletteModelTests
         {
             ("png", PaletteTab.Image), ("svg", PaletteTab.Image),
             ("pdf", PaletteTab.Document), ("csv", PaletteTab.Document),
-            ("mp4", PaletteTab.Media), ("srt", PaletteTab.Media),
-            ("zip", PaletteTab.Archive), ("geojson", PaletteTab.Map),
-            (FormatRegistry.Known.First(f => f.Category == FormatCategory.Model3D).Id, PaletteTab.Model3DCad),
-            (FormatRegistry.Known.First(f => f.Category == FormatCategory.Cad).Id, PaletteTab.Model3DCad),
-            (FormatRegistry.Known.First(f => f.Category == FormatCategory.Font).Id, PaletteTab.Font),
+            ("mp4", PaletteTab.Media), ("mp3", PaletteTab.Media),
+            ("zip", PaletteTab.Archive),
         };
         foreach (var (format, tab) in targets)
             Assert.Equal(tab, ToolbarPageViewModel.TabOf(new Preset { TargetFormat = format }));
@@ -1016,7 +1013,8 @@ public class ToolbarPaletteModelTests
         Assert.Equal(Enum.GetValues<PaletteTab>(), definitions.Select(t => t.Id));
         Assert.Equal(expected.OrderBy(x => x.Key), definitions.SelectMany(t => t.Categories.Select(c => new KeyValuePair<FormatCategory, PaletteTab>(c, t.Id)))
             .OrderBy(x => x.Key));
-        foreach (var category in Enum.GetValues<FormatCategory>())
+        // The lite build lists no format of some categories (fonts, 3D, CAD, geodata, ...).
+        foreach (var category in Enum.GetValues<FormatCategory>().Where(c => FormatRegistry.Known.Any(f => f.Category == c)))
             Assert.Equal(expected[category], ToolbarPageViewModel.TabOf(new Preset
             {
                 TargetFormat = FormatRegistry.Known.First(f => f.Category == category).Id,
@@ -1054,10 +1052,11 @@ public class ToolbarPaletteModelTests
         var expectedKeys = new[]
         {
             "toolbar.tab.all", "format.category.Image", "format.category.Document",
-            "toolbar.tab.media", "toolbar.tab.edit", "toolbar.tab.model3d_cad",
-            "format.category.Geo", "format.category.Archive", "format.category.Font",
+            "toolbar.tab.media", "toolbar.tab.edit", "format.category.Archive",
         };
-        Assert.Equal(Enum.GetValues<PaletteTab>(), vm.Tabs.Select(t => t.Id));
+        // A tab shows only when a preset belongs to it: the lite build has no font, 3D, CAD or geodata presets.
+        Assert.Equal([PaletteTab.All, PaletteTab.Image, PaletteTab.Document, PaletteTab.Media, PaletteTab.Edit, PaletteTab.Archive],
+            vm.Tabs.Select(t => t.Id));
         Assert.Equal(expectedKeys.Select(key => f.Loc[key]), vm.Tabs.Select(t => t.Label));
     }
 

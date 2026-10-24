@@ -24,7 +24,6 @@ public class HeicTests(EngineFixture fx) : IClassFixture<EngineFixture>
     [InlineData("jpg")]
     [InlineData("png")]
     [InlineData("heic")] // re-encode, e.g. smaller
-    [InlineData("raw")]
     public void Images_become_heic_in_one_ffmpeg_step(string from)
     {
         var route = fx.Catalog.CreatePlanner(["ffmpeg"]).Plan(from, "heic");

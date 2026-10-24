@@ -45,11 +45,13 @@ public sealed class RoutePlanner
     /// Extra cost per step for a converter, derived from the user's engine priority order.
     /// Keep it small (0..9) so priority breaks ties between engines without making routes longer.
     /// </param>
-    public RoutePlanner(IEnumerable<IConverter> converters, Func<IConverter, int>? priorityPenalty = null)
+    /// <param name="edgeFilter">Edges that don't pass it are not part of the graph (see <see cref="ConverterCatalog.IsSupportedEdge"/>).</param>
+    public RoutePlanner(IEnumerable<IConverter> converters, Func<IConverter, int>? priorityPenalty = null,
+        Func<ConversionEdge, bool>? edgeFilter = null)
     {
         var penalty = priorityPenalty ?? (_ => 0);
         _edgesFrom = converters
-            .SelectMany(c => c.Edges.Select(e =>
+            .SelectMany(c => c.Edges.Where(edgeFilter ?? (_ => true)).Select(e =>
                 (c, e with { From = e.From.ToLowerInvariant(), To = e.To.ToLowerInvariant() }, e.Cost + penalty(c))))
             .GroupBy(e => e.Item2.From)
             .ToDictionary(g => g.Key, g => g.ToList());

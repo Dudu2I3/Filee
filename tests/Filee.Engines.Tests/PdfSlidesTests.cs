@@ -292,7 +292,7 @@ public class PdfSlidesTests(EngineFixture fx) : IClassFixture<EngineFixture>
                 checkedRoutes++;
             }
         }
-        Assert.True(checkedRoutes > 1000);
+        Assert.True(checkedRoutes > 200);
 
         // Presentations keep their own routes to PDF and images (PPTX → PDF is not changed by a PDF → PPTX edge).
         Assert.DoesNotContain(with.Plan("pptx", "pdf")!.Steps, s => s.Converter is PdfSlidesConverter);

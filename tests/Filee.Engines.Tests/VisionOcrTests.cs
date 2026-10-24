@@ -166,23 +166,6 @@ public class VisionConverterTests(EngineFixture fx) : IClassFixture<EngineFixtur
     }
 
     [Fact]
-    public void On_a_mac_vision_takes_the_ocr_step_before_tesseract()
-    {
-        var all = EngineRegistry.CreateAll(new EngineEnvironment(fx.NewFolder()));
-        var ids = all.Select(c => c.Id).ToList();
-        Assert.True(ids.IndexOf("vision") < ids.IndexOf("tesseract"));
-
-        var vision = new VisionConverter(new VisionFakes.Recognizer(), new VisionFakes.Tesseract(available: true));
-        var tesseract = new TesseractConverter();
-        var catalog = new ConverterCatalog([vision, tesseract]) { Priority = new AppSettings().EnginePriority };
-        var planner = new RoutePlanner(catalog.All, _ => 9);
-
-        Assert.Equal("vision", planner.Plan("pdf", "pdf", ocr: true)!.Steps.Single().Converter.Id);
-        Assert.Equal("vision", planner.Plan("jpg", "pdf", ocr: true)!.Steps.Single().Converter.Id);
-        Assert.Equal("tesseract", new RoutePlanner([tesseract]).Plan("png", "pdf", ocr: true)!.Steps.Single().Converter.Id);
-    }
-
-    [Fact]
     public async Task A_picture_becomes_a_page_of_its_size_with_the_text_on_it()
     {
         var folder = fx.NewFolder();

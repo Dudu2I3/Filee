@@ -34,14 +34,6 @@ public class OcrLanguageListTests
         Assert.Null(OcrLanguages.Find("klingon"));
     }
 
-    [Fact]
-    public void Tesseract_is_offered_but_not_suggested()
-    {
-        var package = EngineDownloads.Packages.Single(p => p.Id == "tesseract");
-
-        Assert.False(EngineDownloads.IsSuggested(package));
-        Assert.Equal(OperatingSystem.IsWindows() ? "tesseract.exe" : "tesseract", Assert.Single(EngineEnvironment.OwnCopyPrograms["tesseract"]));
-    }
 }
 
 /// <summary>Which pages count as having text, so OCR leaves them alone (no Tesseract needed).</summary>

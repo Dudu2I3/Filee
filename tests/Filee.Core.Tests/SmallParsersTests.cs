@@ -25,12 +25,10 @@ public class FormatRegistryTests
     [Theory]
     [InlineData("a.JPEG", "jpg")]
     [InlineData("b.tif", "tiff")]
-    [InlineData("c.HWPX", "hwpx")]
+    [InlineData("c.DOCX", "docx")]
     [InlineData(".md", "md")]
     [InlineData("DSCF0001.HIF", "heic")] // Fujifilm's HEIF
-    [InlineData("anim.apng", "apng")]
-    [InlineData("scan.dicom", "dcm")]
-    [InlineData("texture.rgb", "sgi")]
+    [InlineData("archive.tar.gz", "tgz")]
     public void Detects_formats(string path, string id) => Assert.Equal(id, FormatRegistry.Detect(path)?.Id);
 
     [Fact]
@@ -90,7 +88,8 @@ public class BuiltInDataTests
             Assert.InRange(group.SubPresetIds.Count, 1, Preset.MaxSubPresets);
             Assert.All(group.SubPresetIds, id => Assert.False(presets[id].IsGroup, id));
         }
-        Assert.DoesNotContain(BuiltInData.CreateProfiles(), p => p.PresetIds.Any(id => presets[id].IsGroup));
+        // The lite PDF donut has the page editor group on its front.
+        Assert.DoesNotContain(BuiltInData.CreateProfiles(), p => p.PresetIds.Any(id => presets[id].IsGroup && id != "pdf-edit"));
     }
 
     [Fact]

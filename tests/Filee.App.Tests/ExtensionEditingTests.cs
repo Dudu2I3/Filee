@@ -25,7 +25,7 @@ public class ExtensionInputTests
     [InlineData("*.png", "png")]
     [InlineData("**..webp", "webp")]
     [InlineData("*.TAR.GZ", "tar.gz")]
-    [InlineData("tar.xz", "tar.xz")]
+    [InlineData("tar.gz", "tar.gz")]
     [InlineData("dvr-ms", "dvr-ms")]
     [InlineData("xyz", "xyz")]
     [InlineData("jpg.", "jpg")]
@@ -71,7 +71,7 @@ public class ExtensionInputTests
     public void Format_names_and_categories_are_searched_too()
     {
         var loc = new KeyLocalizer();
-        Assert.Contains(ExtensionInput.Suggest("JPEG XL", [], _ => null, loc), s => s.Value == "jxl");
+        Assert.Contains(ExtensionInput.Suggest("TAR.GZ", [], _ => null, loc), s => s.Value == "tar.gz");
         Assert.Contains(ExtensionInput.Suggest("markdown", [], _ => null, loc), s => s.Value == "md");
 
         var video = ExtensionInput.Suggest("video", [], _ => null, loc, max: 50);

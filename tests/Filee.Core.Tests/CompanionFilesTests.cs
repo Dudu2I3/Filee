@@ -54,19 +54,4 @@ public class CompanionFilesTests
         Assert.Equal(two, CompanionFiles.WithoutCompanions(two));
     }
 
-    [Fact]
-    public void A_job_and_the_donut_count_a_dropped_shapefile_set_as_one_file()
-    {
-        using var dir = new TempDir();
-        string[] dropped = [dir.File("roads.shp"), dir.File("roads.dbf"), dir.File("roads.shx"), dir.File("roads.prj")];
-
-        var job = new ConversionJob(dropped, new Preset { TargetFormat = "geojson" }, "GeoJSON");
-        Assert.Equal([dropped[0]], job.Sources);
-        Assert.Single(job.Files);
-
-        // Without the companions the selection is a .shp, so the geospatial donut opens, not the one for mixed files.
-        var profiles = BuiltInData.CreateProfiles();
-        Assert.Equal("mixed", ProfileSelector.Select(profiles, dropped)!.Id);
-        Assert.Equal("geo", ProfileSelector.Select(profiles, CompanionFiles.WithoutCompanions(dropped))!.Id);
-    }
 }

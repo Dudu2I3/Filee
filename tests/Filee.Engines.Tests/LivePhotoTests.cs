@@ -273,43 +273,6 @@ public class LivePhotoTests(EngineFixture fx) : IClassFixture<EngineFixture>
     }
 
     [Fact]
-    public async Task Livp_gives_its_video_without_the_option_and_its_photo_as_a_picture()
-    {
-        var livp = await LivpAsync();
-        Assert.Equal("livp", FormatRegistry.Detect(livp)!.Id);
-        var movie = Output(await fx.ConvertAsync([livp], new Preset { TargetFormat = "mp4" }));
-        Assert.InRange((await ProbeAsync(movie)).Duration!.Value.TotalSeconds, 1.9, 2.1);
-
-        var png = Output(await fx.ConvertAsync([livp], new Preset { TargetFormat = "png" }));
-        using var still = new MagickImage(png);
-        Assert.Equal((240u, 180u), (still.Width, still.Height));
-    }
-
-    [Fact]
-    public async Task Livp_pair_comes_from_the_package_and_its_names_never_become_paths()
-    {
-        // Identifiers that don't match are only logged: the package says which photo and video belong together.
-        var livp = await LivpAsync(Guid.NewGuid().ToString("D"), prefix: "../../outside/");
-        var work = fx.NewFolder();
-        var (video, companion) = await LivePhotoSource.ExtractAsync(livp, "livp", work,
-            Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance, TestContext.Current.CancellationToken);
-        Assert.Null(companion);
-        Assert.Equal(work, Path.GetDirectoryName(video));
-        Assert.Single(Directory.GetFiles(work));
-        Assert.False(Directory.Exists(Path.Combine(fx.Root, "outside")));
-
-        var two = Path.Combine(fx.NewFolder(), "two.livp");
-        using (var zip = ZipFile.Open(two, ZipArchiveMode.Create))
-        {
-            zip.CreateEntry("a.mov").Open().Dispose();
-            zip.CreateEntry("b.mov").Open().Dispose();
-        }
-        var failed = await fx.ConvertAsync([two], new Preset { TargetFormat = "mp4" });
-        Assert.Equal("error.no_motion_photo", failed.Files.Single().ErrorKey);
-        Assert.Null(failed.Files.Single().ErrorDetail);
-    }
-
-    [Fact]
     public async Task Motion_photo_is_an_ordinary_jpg_without_the_option()
     {
         var photo = await MotionJpegAsync("PXL_20260101_120000000.MP.jpg");
@@ -334,23 +297,6 @@ public class LivePhotoTests(EngineFixture fx) : IClassFixture<EngineFixture>
         var picture = EngineFixture.MakeImage(fx.NewFolder(), "picture." + format, magick);
         Assert.False(Extract().ExtractsMotionOf(format));
         Assert.NotNull((await ProbeAsync(Output(await fx.ConvertAsync([picture], Extract())))).Video);
-    }
-
-    [Fact]
-    public void Motion_edges_are_taken_only_when_asked_for()
-    {
-        var planner = fx.Catalog.CreatePlanner(["ffmpeg"]);
-        var step = Assert.Single(planner.Plan("jpg", "mp4", motionPhoto: true)!.Steps);
-        Assert.True(step.MotionPhoto);
-        Assert.All(planner.Plan("jpg", "mp4")!.Steps, s => Assert.False(s.MotionPhoto));
-        Assert.Equal(2, planner.Plan("jpg", "mp4")!.Steps.Count);
-        Assert.Null(planner.Plan("png", "mp4", motionPhoto: true));
-        Assert.Null(planner.Plan("jpg", "webm", motionPhoto: true));
-        Assert.Null(planner.Plan("jpg", "png", motionPhoto: true));
-        Assert.Equal("magick", Assert.Single(planner.Plan("livp", "png")!.Steps).Converter.Id);
-        Assert.Equal("jpg", FormatRegistry.Detect("PXL_20260101.MP.jpg")!.Id);
-        Assert.True(new Preset { TargetFormat = "mov" }.ExtractsMotionOf("livp"));
-        Assert.False(new Preset { TargetFormat = "mov" }.ExtractsMotionOf("jpg"));
     }
 
     [Fact]

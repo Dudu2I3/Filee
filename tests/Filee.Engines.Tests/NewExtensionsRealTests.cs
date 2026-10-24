@@ -20,50 +20,6 @@ public class NewExtensionsRealTests(EngineFixture fx) : IClassFixture<EngineFixt
         return Assert.Single(job.Outputs);
     }
 
-    [Theory]
-    [InlineData("camera.h265", "libx265", "hevc", "avi")]
-    [InlineData("camera.h265", "libx265", "hevc", "mp4")]
-    [InlineData("camera.264", "libx264", "h264", "mp4")]
-    public async Task A_raw_camera_stream_becomes_a_playable_video(string name, string encoder, string muxer, string target)
-    {
-        Assert.SkipUnless(Tools is not null, "FFmpeg is not installed (pwsh build/fetch-engines.ps1 -Only ffmpeg)");
-        var folder = fx.NewFolder();
-        var raw = Path.Combine(folder, name);
-        var made = await ProcessRunner.RunAsync(Tools!.Value.Ffmpeg,
-            ["-hide_banner", "-nostdin", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=size=320x240:rate=25:duration=2",
-             "-c:v", encoder, "-pix_fmt", "yuv420p", "-f", muxer, raw], TimeSpan.FromMinutes(2), CancellationToken.None);
-        Assert.True(made.ExitCode == 0, made.StandardError);
-
-        var output = await ConvertAsync(raw, target);
-
-        var info = await MediaInfo.ProbeAsync(Tools.Value.Ffprobe, output, CancellationToken.None);
-        Assert.Equal((320, 240), (info.Video!.Width, info.Video.Height));
-        Assert.InRange(info.Duration!.Value.TotalSeconds, 1.8, 2.2);
-        var decode = await ProcessRunner.RunAsync(Tools.Value.Ffmpeg, ["-hide_banner", "-nostdin", "-v", "error", "-i", output, "-f", "null", "-"],
-            TimeSpan.FromMinutes(2), CancellationToken.None);
-        Assert.True(decode.ExitCode == 0 && decode.StandardError.Trim().Length == 0, decode.StandardError);
-    }
-
-    [Fact]
-    public async Task A_har_network_log_converts_like_json()
-    {
-        var folder = fx.NewFolder();
-        var har = Path.Combine(folder, "session.har");
-        await File.WriteAllTextAsync(har, """
-            {"log": {"version": "1.2", "creator": {"name": "Firefox", "version": "140"},
-              "entries": [{"startedDateTime": "2026-10-21T10:00:00Z", "time": 42,
-                "request": {"method": "GET", "url": "https://example.com/api/items"},
-                "response": {"status": 200, "statusText": "OK"}}]}}
-            """, TestContext.Current.CancellationToken);
-
-        // One row per request: method, address and status side by side. CSV is the table step every table route
-        // (Markdown, spreadsheets, PDF) starts from; Markdown itself goes through Unhwp, which Linux ARM64 lacks.
-        var csv = await File.ReadAllTextAsync(await ConvertAsync(har, "csv"), TestContext.Current.CancellationToken);
-        Assert.Contains("GET,https://example.com/api/items,200", csv);
-        var json = await File.ReadAllTextAsync(await ConvertAsync(har, "json"), TestContext.Current.CancellationToken);
-        Assert.Contains("\"creator\"", json); // the whole log, as it was
-    }
-
     [Fact]
     public void A_raw_stream_is_never_copied_into_a_container()
     {

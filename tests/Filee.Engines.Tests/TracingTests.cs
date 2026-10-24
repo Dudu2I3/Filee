@@ -387,25 +387,13 @@ public class TracingTests(EngineFixture fx) : IClassFixture<EngineFixture>
     [InlineData("webp")]
     [InlineData("tiff")]
     [InlineData("heic")]
-    public void Raster_images_reach_svg_by_tracing_and_cad_through_svg(string from)
+    public void Raster_images_reach_svg_by_tracing(string from)
     {
         var planner = fx.Catalog.CreatePlanner();
 
         Assert.Equal("vector", Assert.Single(planner.Plan(from, "svg")!.Steps).Converter.Id);
-        Assert.Equal(["svg", "dxf"], planner.Plan(from, "dxf")!.Steps.Select(s => s.To));
-        Assert.Equal(["svg", "dxf", "dwg"], planner.Plan(from, "dwg")!.Steps.Select(s => s.To));
         // Everything else keeps the image engines' routes.
         Assert.Equal("pdfsharp", Assert.Single(planner.Plan(from, "pdf")!.Steps).Converter.Id);
-        Assert.DoesNotContain(planner.Plan(from, "eps")?.Steps ?? [], s => s.To == "svg");
-    }
-
-    [Fact]
-    public void Icns_is_traced_through_png()
-    {
-        var route = fx.Catalog.CreatePlanner().Plan("icns", "svg");
-
-        Assert.NotNull(route);
-        Assert.Equal(["png", "svg"], route.Steps.Select(s => s.To));
     }
 
     [Theory]
@@ -430,39 +418,6 @@ public class TracingTests(EngineFixture fx) : IClassFixture<EngineFixture>
                 Assert.DoesNotContain(planner.Plan(from, to)?.Steps ?? [], IsTracing);
         }
         Assert.Null(builtIn.Plan(from, "svg"));
-    }
-
-    [Fact]
-    public void Tracing_is_never_a_step_towards_a_format_that_has_another_route()
-    {
-        // Every engine as if installed, so optional engines' edges are part of the check.
-        var everyEngine = fx.Converters.Select(c => c.Id).ToArray();
-        var withTracing = fx.Catalog.CreatePlanner(everyEngine);
-        var without = new ConverterCatalog(fx.Converters.Select(c => c is VectorConverter ? new WithoutTracing(c) : c))
-        {
-            Priority = fx.Catalog.Priority,
-        }.CreatePlanner(everyEngine);
-
-        var formats = FormatRegistry.Known.Select(f => f.Id).ToList();
-        var checkedRoutes = 0;
-        foreach (var from in formats)
-        {
-            foreach (var to in formats.Where(t => t != from))
-            {
-                var route = withTracing.Plan(from, to);
-                // Only raster images are ever traced.
-                if (FormatRegistry.FindById(from)?.Category != FormatCategory.Image)
-                    Assert.False(route?.Steps.Any(IsTracing) ?? false, $"{from} → {to} traces a rendering");
-                var other = without.Plan(from, to);
-                if (other is null)
-                    continue;
-                Assert.NotNull(route);
-                Assert.False(route.Steps.Any(IsTracing), $"{from} → {to} traces: {string.Join(" → ", route.Steps.Select(s => s.To))}");
-                Assert.Equal(other.Cost, route.Cost);
-                checkedRoutes++;
-            }
-        }
-        Assert.True(checkedRoutes > 1000);
     }
 
     // SVGZ is unpacked, a plot file's pen moves (HpglPlot) and an embroidery design's stitches (DstEmbroidery) are
@@ -498,107 +453,7 @@ public class TracingTests(EngineFixture fx) : IClassFixture<EngineFixture>
         </svg>
         """;
 
-    [Fact]
-    public async Task Svg_becomes_dxf_in_millimetres_with_y_up()
-    {
-        var dir = fx.NewFolder();
-        var svg = Path.Combine(dir, "parts.svg");
-        await File.WriteAllTextAsync(svg, Drawing, TestContext.Current.CancellationToken);
-
-        var dxf = await ConvertAsync(svg, new Preset { TargetFormat = "dxf" });
-
-        var document = DxfReader.Read(dxf);
-        Assert.Equal(UnitsType.Millimeters, document.Header.InsUnits);
-        const double mm = 25.4 / 96; // 96 px = 1 inch, so the drawing is 25.4 mm square
-        var entities = document.Entities.ToList();
-
-        // The rectangle: closed, its top-left corner (10, 10) at y = 96 - 10 from the bottom.
-        var rectangle = entities.OfType<LwPolyline>().Single(p => p.Color.R == 255 && p.Color.G == 0);
-        Assert.True(rectangle.IsClosed);
-        Assert.Equal(4, rectangle.Vertices.Count);
-        Assert.Contains(rectangle.Vertices, v => Near(v.Location.X, 10 * mm) && Near(v.Location.Y, 86 * mm));
-        Assert.Contains(rectangle.Vertices, v => Near(v.Location.X, 40 * mm) && Near(v.Location.Y, 66 * mm));
-
-        var circle = Assert.Single(entities.OfType<Circle>());
-        Assert.True(Near(circle.Center.X, 60 * mm) && Near(circle.Center.Y, 76 * mm) && Near(circle.Radius, 9.6 * mm), $"{circle.Center} r {circle.Radius}");
-        Assert.Equal((0, 0, 255), (circle.Color.R, circle.Color.G, circle.Color.B));
-
-        var ellipse = Assert.Single(entities.OfType<Ellipse>());
-        Assert.True(Near(ellipse.Center.X, 20 * mm) && Near(ellipse.Center.Y, 36 * mm));
-        Assert.True(Near(ellipse.RadiusRatio, 0.5));
-        Assert.True(Near(ellipse.MajorAxisEndPoint.X, 12 * mm * Math.Cos(Math.PI / 6)) && Near(ellipse.MajorAxisEndPoint.Y, -12 * mm * Math.Sin(Math.PI / 6)),
-            ellipse.MajorAxisEndPoint.ToString());
-
-        var line = Assert.Single(entities.OfType<Line>());
-        Assert.True(Near(line.StartPoint.X, 50 * mm) && Near(line.StartPoint.Y, 46 * mm) && Near(line.EndPoint.X, 90 * mm));
-
-        Assert.Contains(entities.OfType<LwPolyline>(), p => !p.IsClosed && p.Vertices.Count == 4); // the polyline
-        Assert.Contains(entities.OfType<LwPolyline>(), p => p.IsClosed && p.Vertices.Count == 3); // the polygon
-        // The path's curve and arc are divided into short straight pieces.
-        var curved = entities.OfType<LwPolyline>().Single(p => p.IsClosed && p.Vertices.Count > 20);
-        // The arc is too short for its radius, so SVG enlarges it (to 5.59) and it bulges a little past x = 30.
-        Assert.All(curved.Vertices, v => Assert.InRange(v.Location.X, 9.99 * mm, 30.7 * mm));
-        Assert.Contains(curved.Vertices, v => v.Location.X > 30.5 * mm);
-        Assert.Contains(curved.Vertices, v => Near(v.Location.Y, (96 - 85) * mm, 0.05));
-
-        // <use> inside a translated and scaled group: (70, 75) to (90, 95).
-        var tile = entities.OfType<LwPolyline>().Single(p => p.IsClosed && p.Vertices.Count == 4 && p.Color.R == 0);
-        Assert.Contains(tile.Vertices, v => Near(v.Location.X, 70 * mm) && Near(v.Location.Y, 21 * mm));
-        Assert.Contains(tile.Vertices, v => Near(v.Location.X, 90 * mm) && Near(v.Location.Y, 1 * mm));
-    }
-
     private static bool Near(double a, double b, double tolerance = 1e-3) => Math.Abs(a - b) < tolerance;
-
-    [Fact]
-    public async Task Svg_text_becomes_outlines_in_dxf()
-    {
-        // Text needs a font with outlines; a CI machine without fonts has none to draw with.
-        using (var font = new SKFont(SKFontManager.Default.MatchFamily("sans-serif") ?? SKTypeface.Default, 40))
-        using (var glyph = font.GetGlyphPath(font.GetGlyphs("H")[0]))
-            Assert.SkipWhen(glyph is null || glyph.IsEmpty, "no font with outlines on this machine");
-        var dir = fx.NewFolder();
-        var svg = Path.Combine(dir, "label.svg");
-        await File.WriteAllTextAsync(svg, """
-            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="45" font-size="40" font-family="sans-serif">Hi</text></svg>
-            """, TestContext.Current.CancellationToken);
-
-        var document = DxfReader.Read(await ConvertAsync(svg, new Preset { TargetFormat = "dxf" }));
-
-        var outlines = document.Entities.OfType<LwPolyline>().ToList();
-        Assert.True(outlines.Count >= 3, $"{outlines.Count} outlines"); // H, the stem and dot of i
-        Assert.All(outlines, o => Assert.True(o.IsClosed));
-    }
-
-    [Fact]
-    public async Task Svg_reaches_dwg_through_dxf()
-    {
-        var dir = fx.NewFolder();
-        var svg = Path.Combine(dir, "parts.svg");
-        await File.WriteAllTextAsync(svg, Drawing, TestContext.Current.CancellationToken);
-
-        Assert.Equal("vector,cad", string.Join(',', fx.Catalog.CreatePlanner().Plan("svg", "dwg")!.Steps.Select(s => s.Converter.Id)));
-        var dwg = await ConvertAsync(svg, new Preset { TargetFormat = "dwg" });
-
-        var document = DwgReader.Read(dwg);
-        Assert.Single(document.Entities.OfType<Circle>());
-        Assert.Single(document.Entities.OfType<Ellipse>());
-        Assert.Equal(8, document.Entities.Count()); // every shape of the drawing
-    }
-
-    [Fact]
-    public async Task Traced_line_art_becomes_closed_dxf_outlines()
-    {
-        var dir = fx.NewFolder();
-        var png = Draw(dir, "logo.png", 400, 300, SKColors.White, DrawLineArt);
-
-        var dxf = await ConvertAsync(png, LineArt().Also(p => p.TargetFormat = "dxf"));
-
-        var outlines = DxfReader.Read(dxf).Entities.OfType<LwPolyline>().ToList();
-        Assert.Equal(6, outlines.Count);
-        Assert.All(outlines, o => Assert.True(o.IsClosed));
-        // 400 px wide at 96 px per inch.
-        Assert.True(outlines.Max(o => o.Vertices.Max(v => v.Location.X)) < 400 * 25.4 / 96);
-    }
 
     [Fact]
     public async Task Svg_with_nothing_to_outline_fails_with_a_message()

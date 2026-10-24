@@ -28,18 +28,8 @@ public class NativeMemoryStressTests(EngineFixture fx) : IClassFixture<EngineFix
             (Pdf(dir), "png"),                                  // PDFium into SKBitmap, Skia PNG encoder, ImageMagick
             (Write(dir, "drawing.svg", GraphicsBuilders.Svg), "pdf"), // Svg.Skia, HarfBuzz outlines, Skia PDF
             (Write(dir, "drawing2.svg", GraphicsBuilders.Svg), "png"),
-            (CadBuilder.SaveDxf(CadBuilder.Sample(), dir, "도면.dxf"), "png"), // CAD typefaces (released by the trim)
-            (ModelBuilders.Save(ModelBuilders.Cube(), dir, "cube", "glb"), "png"), // software renderer → SKImage
             (EngineFixture.MakeImage(dir, "photo.png", MagickFormat.Png), "webp"),
         };
-        if (OperatingSystem.IsWindows())
-        {
-            var jxr = Path.Combine(dir, "photo.jxr");
-            JpegXrBuilder.WriteBgr(jxr, 96, 64, (x, y) => ((byte)x, (byte)y, 128)); // WIC CopyPixels into a pinned array
-            routes.Add((jxr, "png"));
-        }
-        if (fx.Catalog.StatusOf(fx.Converters.Single(c => c.Id == "unhwp")).IsAvailable)
-            routes.Add((await fx.MakeHwpxAsync(fx.NewFolder()), "md"));
 
         // Every worker goes through every route at least once, however slow the machine; then until the time is up.
         using var stop = new CancellationTokenSource(Duration);

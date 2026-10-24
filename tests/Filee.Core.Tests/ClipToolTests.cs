@@ -159,13 +159,13 @@ public class ClipToolTests
     public void A_clip_keeps_the_videos_format_where_one_engine_writes_it_else_mp4()
     {
         var videos = new FakeConverter("ffmpeg", new ConversionEdge("mp4", "mp4"), new ConversionEdge("mkv", "mkv"), new ConversionEdge("mkv", "mp4"),
-            new ConversionEdge("rm", "mp4"));
+            new ConversionEdge("avi", "mp4"));
         var planner = new ConverterCatalog([videos]).CreatePlanner();
 
         Assert.Equal("mp4", ClipTool.TargetFor("mp4", planner));
         Assert.Equal("mkv", ClipTool.TargetFor("mkv", planner));
-        Assert.Equal("mp4", ClipTool.TargetFor("rm", planner)); // RealVideo can't be written
-        Assert.True(ClipTool.CanCut("rm", planner));
+        Assert.Equal("mp4", ClipTool.TargetFor("avi", planner)); // here no engine writes AVI
+        Assert.True(ClipTool.CanCut("avi", planner));
         Assert.False(ClipTool.CanCut("mov", planner)); // no engine reads it here
         Assert.False(ClipTool.CanCut("mp3", planner)); // not a video
     }

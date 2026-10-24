@@ -142,8 +142,8 @@ public class HtmlReaderTests(EngineFixture fx) : IClassFixture<EngineFixture>
     {
         var folder = fx.NewFolder();
         Directory.CreateDirectory(Path.Combine(folder, "img"));
-        File.WriteAllBytes(Path.Combine(folder, "img", "로고 1.png"), EbookBuilders.Png(40, 20, MagickColors.Teal));
-        var data = Convert.ToBase64String(EbookBuilders.Png(10, 10, MagickColors.Red));
+        File.WriteAllBytes(Path.Combine(folder, "img", "로고 1.png"), TestImages.Png(40, 20, MagickColors.Teal));
+        var data = Convert.ToBase64String(TestImages.Png(10, 10, MagickColors.Red));
         var content = Parse($"""
             <p><a href="#part2">둘째로</a> <a href="https://example.com/x?a=1">웹</a> <a name="unused">아무도</a></p>
             <p><img src="img/%EB%A1%9C%EA%B3%A0%201.png" width="200"> <img src="data:image/png;base64,{data}"> <img src="https://example.com/remote.png"></p>
@@ -255,15 +255,13 @@ public class HtmlReaderTests(EngineFixture fx) : IClassFixture<EngineFixture>
 
         Assert.Equal("hwpx-writer", Assert.Single(planner.Plan("html", "hwpx")!.Steps).Converter.Id);
         Assert.Equal(["hwpx-writer", "rhwp"], planner.Plan("html", "pdf")!.Steps.Select(s => s.Converter.Id));
-        Assert.Equal("ebook", Assert.Single(planner.Plan("html", "txt")!.Steps).Converter.Id);
-        Assert.Equal("ebook", Assert.Single(planner.Plan("html", "epub")!.Steps).Converter.Id);
     }
 
     [Fact]
     public async Task Html_becomes_hwpx_and_pdf_with_built_in_engines()
     {
         var dir = fx.NewFolder();
-        File.WriteAllBytes(Path.Combine(dir, "chart.png"), EbookBuilders.Png(300, 150, MagickColors.MediumPurple));
+        File.WriteAllBytes(Path.Combine(dir, "chart.png"), TestImages.Png(300, 150, MagickColors.MediumPurple));
         var html = Path.Combine(dir, "보고서.html");
         await File.WriteAllTextAsync(html, """
             <!DOCTYPE html><html><head><meta charset="utf-8"><title>보고서</title></head><body>

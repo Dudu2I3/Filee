@@ -56,12 +56,12 @@ public class BackFaceTests
     }
 
     [Fact]
-    public void Pdf_edit_is_one_back_slice_with_six_real_actions()
+    public void Pdf_edit_is_one_front_slice_with_six_real_actions()
     {
         var presets = BuiltInData.CreatePresets().ToDictionary(p => p.Id);
         var pdf = BuiltIn("pdf");
 
-        Assert.Equal("pdf-edit", pdf.BackPresetIds![0]);
+        Assert.Contains("pdf-edit", pdf.PresetIds);
         var edit = presets["pdf-edit"];
         Assert.True(edit.IsGroup);
         Assert.Equal([
@@ -74,33 +74,15 @@ public class BackFaceTests
     }
 
     [Fact]
-    public void Version_45_library_gets_pdf_edit_once_without_replacing_custom_back_slices()
-    {
-        var presets = BuiltInData.CreatePresets();
-        presets.RemoveAll(p => p.Id is "tool-pdf-crop" or "tool-pdf-pages" or "tool-pdf-add"
-            or "pdf-rotate-left" or "pdf-rotate-right" or "pdf-edit");
-        var profiles = BuiltInData.CreateProfiles();
-        var pdf = profiles.Single(p => p.Id == "pdf");
-        pdf.BackPresetIds = ["to-html", "zip-all"];
-
-        Assert.True(SettingsMigrations.ApplyToLibrary(45, presets, profiles));
-
-        Assert.Equal(["pdf-edit", "to-html", "zip-all"], pdf.BackPresetIds);
-        Assert.All(new[] { "tool-pdf-crop", "tool-pdf-pages", "tool-pdf-add", "pdf-rotate-left", "pdf-rotate-right", "pdf-edit" },
-            id => Assert.Single(presets, p => p.Id == id));
-        Assert.False(SettingsMigrations.ApplyToLibrary(45, presets, profiles));
-    }
-
-    [Fact]
     public void The_fronts_stay_as_they_were_before_back_faces()
     {
         Assert.Equal(["to-png", "to-jpg", "to-webp", "to-pdf", "trace-svg", "trace-line-art", "to-tiff", "to-bmp", "to-ico", "half-size"],
             BuiltIn("images").PresetIds);
         Assert.Equal(BuiltInData.PdfDonut, BuiltIn("pdf").PresetIds);
-        Assert.Equal(["to-pdf", "to-hwpx", "to-hwp", "to-docx", "to-odt", "to-txt", "to-html", "to-epub", "to-png", "merge-pdf"],
+        Assert.Equal(["to-pdf", "to-docx", "to-odt", "to-md", "to-rtf", "to-txt", "to-html", "to-png", "merge-pdf"],
             BuiltIn("office").PresetIds);
         Assert.Equal(["to-pdf", "merge-pdf", "zip-all", "to-png", "to-txt"], BuiltIn("mixed").PresetIds);
-        Assert.Equal(["to-mp4", "mp4-720", "mp4-hevc", "to-webm", "to-mov", "to-gif", "to-mp3", "extract-subtitles", "to-mkv", "to-avi"],
+        Assert.Equal(["to-mp4", "mp4-720", "mp4-hevc", "to-webm", "to-mov", "to-gif", "to-mp3", "extract-audio", "to-mkv", "to-avi"],
             BuiltIn("video").PresetIds);
     }
 
