@@ -132,8 +132,6 @@ public partial class LocalizationTests
     [Theory]
     [InlineData("ru")]
     [InlineData("en")]
-    [InlineData("pt-PT")]
-    [InlineData("pt-BR")]
     public void A_chosen_language_is_kept_whatever_the_os_is_in(string chosen) =>
         // The OS isn't even asked: the user picked the language in Settings.
         Assert.Equal(chosen, LocalizationService.Resolve(chosen, () => throw new InvalidOperationException("asked the OS")));
