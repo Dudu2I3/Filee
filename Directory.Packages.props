@@ -46,7 +46,6 @@
     <PackageVersion Include="SharpCompress" Version="1.0.0" />
     <PackageVersion Include="ExcelDataReader" Version="3.9.0" />
     <PackageVersion Include="PdfPig" Version="0.1.16" />
-    <PackageVersion Include="MimeKitLite" Version="4.18.1" />
     <PackageVersion Include="AngleSharp" Version="1.8.2" />
     <!-- 6.2 no longer reads files an attachment only links to (ATTACH_BY_REFERENCE) and caps nested messages and
          stream sizes of untrusted .msg files; brings OpenMcdf (MPL-2.0), RtfPipe and UTF.Unknown (MPL-1.1). -->

@@ -116,7 +116,6 @@ public class RenderTests
     [AvaloniaTheory]
     [InlineData("en")]
     [InlineData("ru")]
-    [InlineData("ru")]
     public void Watch_folders_page_renders_a_rule(string language)
     {
         TestServices.EnsureInitialized(language);
@@ -211,7 +210,6 @@ public class RenderTests
     [AvaloniaTheory]
     [InlineData("en")]
     [InlineData("ru")]
-    [InlineData("ru")]
     public void Watch_folder_options_rename_and_filter_with_a_preview(string language)
     {
         TestServices.EnsureInitialized(language);
@@ -300,7 +298,6 @@ public class RenderTests
     [AvaloniaTheory]
     [InlineData("en")]
     [InlineData("ru")]
-    [InlineData("ru")]
     public void Home_page_lists_failed_files_with_a_retry_button(string language)
     {
         TestServices.EnsureInitialized(language);
@@ -346,7 +343,6 @@ public class RenderTests
 
     [AvaloniaTheory]
     [InlineData("en")]
-    [InlineData("ru")]
     [InlineData("ru")]
     public void Home_page_search_finds_old_conversions_in_a_long_history(string language)
     {
@@ -498,7 +494,6 @@ public class RenderTests
 
     [AvaloniaTheory]
     [InlineData("en")]
-    [InlineData("ru")]
     [InlineData("ru")]
     public void Reset_to_default_sits_beside_delete_for_a_built_in_profile_only(string language)
     {
@@ -808,77 +803,6 @@ public class RenderTests
 
     [AvaloniaTheory]
     [InlineData("en")]
-    [InlineData("ru")]
-    [InlineData("ru")]
-    public void Sponsor_window_renders(string language)
-    {
-        TestServices.EnsureInitialized(language);
-        var window = Filee.App.Views.SponsorWindow.Create(AppHost.Get<Filee.Core.Localization.ILocalizer>());
-        window.Show();
-        Pump();
-        Save(window, $"window-sponsor-{language}.png");
-        window.Close();
-    }
-
-    [AvaloniaTheory]
-    [InlineData("en")]
-    [InlineData("pt-PT")]
-    [InlineData("pt-BR")]
-    public void Sponsor_window_with_supporters_renders(string language)
-    {
-        TestServices.EnsureInitialized(language);
-        var window = Filee.App.Views.SponsorWindow.Create(AppHost.Get<Filee.Core.Localization.ILocalizer>());
-        var view = window.Supporters;
-        view.Show(new SupporterList(
-            [new Supporter("Acme", "https://acme.example", "acme.png"), new Supporter("Globex", "https://globex.example")],
-            [new("Kim"), new("Lee"), new("Park")]), _ => Logo());
-        window.Show();
-        Pump();
-        CheckAcknowledgement(window);
-        Save(window, $"window-sponsor-supporters-{language}.png");
-        window.Close();
-
-        using var vm = new MainWindowViewModel(AppHost.Services, AppHost.Get<Filee.Core.Localization.ILocalizer>(), AppHost.Get<UpdateService>());
-        vm.Navigate("about");
-        var main = new MainWindow { DataContext = vm, Width = 1080, Height = 820 };
-        main.Show();
-        Pump();
-        var about = main.GetVisualDescendants().OfType<Filee.App.Views.Pages.AboutPage>().Single();
-        about.Supporters.Show(new SupporterList(
-            [new Supporter("Acme", "https://acme.example", "acme.png"), new Supporter("Globex", "https://globex.example")],
-            [new("Kim"), new("Lee"), new("Park")]), _ => Logo());
-        Pump();
-        CheckAcknowledgement(main);
-        Save(main, $"page-about-supporters-{language}.png");
-        main.Close();
-
-        static void CheckAcknowledgement(Window target)
-        {
-            var thanks = AppHost.Get<Filee.Core.Localization.ILocalizer>()["sponsor.thanks"];
-            var labels = target.GetVisualDescendants().OfType<TextBlock>()
-                .Where(t => t.IsEffectivelyVisible && t.Text == thanks).ToArray();
-            Assert.NotEmpty(labels);
-            Assert.All(labels, text => Assert.True(text.TextLayout.Width <= text.Bounds.Width + 1 &&
-                                                    text.TextLayout.Height <= text.Bounds.Height + 1,
-                $"Acknowledgement is clipped: {thanks}"));
-        }
-
-        // A stand-in logo: a wide coloured mark like a company's.
-        static Avalonia.Media.Imaging.Bitmap Logo()
-        {
-            var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new Avalonia.PixelSize(120, 32));
-            using (var context = bitmap.CreateDrawingContext())
-            {
-                context.DrawRectangle(new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#3B6FD8")), null, new Avalonia.Rect(0, 4, 24, 24), 6, 6);
-                context.DrawRectangle(new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#7A8699")), null, new Avalonia.Rect(32, 10, 84, 12), 3, 3);
-            }
-            return bitmap;
-        }
-    }
-
-    [AvaloniaTheory]
-    [InlineData("en")]
-    [InlineData("ru")]
     [InlineData("ru")]
     public void First_run_engine_setup_renders(string language)
     {
@@ -1441,7 +1365,6 @@ public class RenderTests
     [AvaloniaTheory]
     [InlineData("en")]
     [InlineData("ru")]
-    [InlineData("ru")]
     public void Sidebar_shows_the_version_and_a_new_release(string language)
     {
         TestServices.EnsureInitialized(language);
@@ -1686,7 +1609,6 @@ public class RenderTests
     [AvaloniaTheory]
     [InlineData("en")]
     [InlineData("ru")]
-    [InlineData("ru")]
     public void Preset_editor_shows_tracing_options(string language)
     {
         TestServices.EnsureInitialized(language);
@@ -1726,7 +1648,6 @@ public class RenderTests
 
     [AvaloniaTheory]
     [InlineData("en")]
-    [InlineData("ru")]
     [InlineData("ru")]
     public void Preset_editor_offers_markdown_without_pictures(string language)
     {
@@ -2096,7 +2017,6 @@ public class RenderTests
     [AvaloniaTheory]
     [InlineData("en")]
     [InlineData("ru")]
-    [InlineData("ru")]
     public void Excluded_apps_render_as_tags(string language)
     {
         TestServices.EnsureInitialized(language);
@@ -2124,7 +2044,6 @@ public class RenderTests
     [AvaloniaTheory]
     [InlineData("en")]
     [InlineData("ru")]
-    [InlineData("ru")]
     public void Close_dialog_renders(string language)
     {
         TestServices.EnsureInitialized(language);
@@ -2137,7 +2056,6 @@ public class RenderTests
 
     [AvaloniaTheory]
     [InlineData("en")]
-    [InlineData("ru")]
     [InlineData("ru")]
     public void Format_request_notice_renders(string language)
     {
@@ -2180,7 +2098,6 @@ public class RenderTests
 
     [AvaloniaTheory]
     [InlineData("en")]
-    [InlineData("ru")]
     [InlineData("ru")]
     public void Live_photo_options_render_for_jpg_and_heic_and_save_only_there(string language)
     {

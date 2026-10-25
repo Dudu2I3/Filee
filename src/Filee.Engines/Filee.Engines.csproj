@@ -16,7 +16,6 @@
     <PackageReference Include="PDFsharp" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" />
     <PackageReference Include="PDFtoImage" />
-    <PackageReference Include="Unhwp" />
     <PackageReference Include="Markdig" />
     <PackageReference Include="ExcelNumberFormat" />
     <PackageReference Include="Svg.Skia" />
@@ -25,7 +24,6 @@
     <PackageReference Include="SharpCompress" />
     <PackageReference Include="ExcelDataReader" />
     <PackageReference Include="PdfPig" />
-    <PackageReference Include="MimeKitLite" />
     <PackageReference Include="AngleSharp" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>

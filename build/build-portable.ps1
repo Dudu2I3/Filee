@@ -81,6 +81,8 @@ if ($RhwpOverride) {
 else {
     & (Join-Path $PSScriptRoot 'fetch-portable-engines.ps1') -Runtime $Runtime -Destination $engines
 }
+# Tarballs made on a Mac carry AppleDouble companions ("._name") of every file; they are not part of the engines.
+Get-ChildItem -LiteralPath $engines -Recurse -Force -File -Filter '._*' | Remove-Item -Force
 foreach ($name in @('Filee', 'filee-cli')) {
     $executable = Join-Path $publish $name
     if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw "Publish did not produce $name" }

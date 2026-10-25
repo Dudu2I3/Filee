@@ -342,12 +342,6 @@ internal static partial class ComplexScripts
             if (format is "xls" or "xlt")
                 return XlsReader.Read(path).Sheets.SelectMany(sheet => sheet.Rows.Values).SelectMany(cells => cells.Values)
                     .Select(cell => Find(cell.Text, classifier, skipBelow)).FirstOrDefault(script => script is not null);
-            // Web archives and mail are MIME: their HTML (or text) part is what reaches the PDF.
-            if (format is "mhtml" or "eml")
-            {
-                var message = MimeKit.MimeMessage.Load(path);
-                return FindInString(message.HtmlBody ?? message.TextBody ?? "", classifier, skipBelow);
-            }
             return format is "txt" or "md" or "html" or "csv" or "tsv" or "fb2" or "rtf" or "rst" or "tex" or "org" or "adoc"
                 or "typ" or "mediawiki" or "dbk" or "textile" or "man" or "opml"
                 ? FindInText(path, classifier, skipBelow)
