@@ -1,6 +1,7 @@
 # Filee Lite
 
 A lighter macOS (Apple Silicon) build of [Filee](https://github.com/KnifeLemon/Filee) by Myeonggu Kim (KnifeLemon), MIT licensed.
+Based on upstream Filee 2.1.0.
 
 Hold <kbd>Option</kbd>, drag files and drop them on a format in the donut that opens at the cursor. The donut, the
 `filee` command line tool and watch folders are the upstream ones; this fork keeps only the formats people use every day.
@@ -41,9 +42,10 @@ Text recognition (searchable PDF) uses Apple Vision and downloads nothing.
 ## What was removed
 
 HWP/HWPX, e-books, CAD, 3D models, geospatial data, fonts, subtitles, structured data (JSON, YAML, XML, ...), e-mail,
-OFD, camera RAW and other rare image, video, audio and archive formats, and their engines: rhwp, Unhwp, Pandoc, calibre,
-Ghostscript, Tesseract, the Java runtime and H2Orestart. The donuts for these formats are gone too. Update checks are
-off, so the app never replaces itself with the upstream release.
+OFD, camera RAW and other rare image, video, audio and archive formats, and their engines: Unhwp, Pandoc, calibre, the
+Java runtime and H2Orestart (rhwp stays: it draws Office documents to PDF). The donuts for these formats are gone too,
+as are the Sponsor window and every language except English and Russian. Update checks are off, so the app never
+replaces itself with the upstream release.
 
 ## Install
 
