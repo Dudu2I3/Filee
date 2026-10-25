@@ -27,7 +27,6 @@ public sealed class WindowService(ILocalizer loc, IServiceProvider services, Mem
     private UpdateProgressWindow? _updateProgress;
     internal UpdateProgressWindow? UpdateProgress => _updateProgress;
     private EngineUpdateNoticeWindow? _engineNotice;
-    private FeedbackNoticeWindow? _feedbackNotice;
     private FormatRequestNoticeWindow? _formatRequestNotice;
     private WhatsNewWindow? _whatsNew;
 
@@ -437,17 +436,6 @@ public sealed class WindowService(ILocalizer loc, IServiceProvider services, Mem
         };
         _engineNotice = notice;
         notice.Show();
-    }
-
-    /// <summary>Shows the one-time "Is Filee helping you?" card in the bottom-right corner.</summary>
-    public void ShowFeedbackNotice()
-    {
-        if (_feedbackNotice is not null)
-            return;
-        _feedbackNotice = new FeedbackNoticeWindow();
-        PrepareWindow(_feedbackNotice);
-        _feedbackNotice.Closed += (_, _) => _feedbackNotice = null;
-        _feedbackNotice.Show();
     }
 
     /// <summary>Shows the "Filee is running as administrator" card in the bottom-right corner (once per run).</summary>

@@ -853,8 +853,6 @@
   "about.github": "Репозиторий на GitHub",
   "about.support_title": "Помогите Filee расти",
   "about.support_text": "Filee бесплатен, а его код открыт.\nПомогает всё: звезда на GitHub, сообщение об ошибке, идея или спонсорство.",
-  "feedback.notice_title": "Filee вам помогает?",
-  "feedback.notice_text": "Звезда на GitHub помогает другим найти Filee.\nБудем рады и сообщениям о проблемах, и идеям.",
   "feedback.star": "Поставить звезду на GitHub",
   "feedback.issue": "Сообщить о проблеме или идее",
   "common.ok": "OK",
