@@ -15,7 +15,7 @@
     <key>LSMinimumSystemVersion</key><string>13.0</string>
     <key>NSHighResolutionCapable</key><true/>
     <!-- "Convert with Filee" in Finder's right-click menu, answered by the running Filee (MacOSServicesProvider).
-         ServicesMenu.strings in ko.lproj, zh-Hans.lproj and zh-Hant.lproj translate the title. An empty NSRequiredContext keeps
+         ServicesMenu.strings in each .lproj folder translates the title. An empty NSRequiredContext keeps
          the service on by default. -->
     <key>NSServices</key>
     <array>
