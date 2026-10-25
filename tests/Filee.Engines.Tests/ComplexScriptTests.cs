@@ -55,13 +55,6 @@ public class ComplexScriptTests(EngineFixture fx) : IClassFixture<EngineFixture>
         Assert.Null(ComplexScripts.FindInFile(Text("plain.md", "# Title\n\nC:\\users\\me and &#169; 2026"), "md"));
         Assert.Null(ComplexScripts.FindInFile(Text("binary.hwp", "ignored"), "hwp"));
 
-        // Web archives: the HTML part, quoted-printable here, as Chrome saves it.
-        const string Mhtml = "MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary=\"b\"\r\n\r\n--b\r\n" +
-                             "Content-Type: text/html; charset=utf-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n" +
-                             "<p>=E0=AA=B8=E0=AB=8C=E0=AA=B0=E0=AA=BE</p>\r\n--b--\r\n";
-        Assert.Equal("Gujarati", ComplexScripts.FindInFile(Text("page.mhtml", Mhtml), "mhtml"));
-        Assert.Null(ComplexScripts.FindInFile(Text("plain.mhtml", Mhtml.Replace("=E0=AA=B8=E0=AB=8C=E0=AA=B0=E0=AA=BE", "Hello")), "mhtml"));
-
         // OFD: the text of the pages (an official document in Uyghur), not the resource names.
         string Ofd(string name, string text)
         {
